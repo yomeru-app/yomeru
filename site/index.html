@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yomeru · words you can already read</title>
+<meta name="description" content="Find Japanese vocabulary made only of the kanji you know, from WaniKani, JLPT level, school grade or your own list.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@600&display=swap" rel="stylesheet">
+<style>
+/*
+VOICE: a calm study notebook, quick to scan on a phone between reviews.
+IDEA: a ruled vocabulary notebook, each new level a fresh page stamped with a seal.
+PICTURE: the word list itself, large mincho headwords, the big count of words you can read.
+COLOUR and TYPE: white paper, sumi ink, ai-indigo band, one vermilion seal; Zen Old Mincho for words, Zen Kaku Gothic for UI.
+LAYOUT: indigo band with title, kanji source and count; sticky filter row; ruled list grouped by level.
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#ffffff,#111419);--ink:light-dark(#17191e,#e9e7e2);--mute:light-dark(#5e636d,#9aa0aa);
+--rule:light-dark(#e3e5ea,#252a33);--soft:light-dark(#f3f5f8,#181c23);
+--ai:light-dark(#1f3b5c,#1a2d45);--aiInk:#f2f4f7;--shu:#d6402a;--ok:light-dark(#2f6b4f,#3f8a66)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Zen Kaku Gothic New",system-ui,"Hiragino Sans","Yu Gothic",sans-serif;overflow-x:clip}
+a{color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
+.wrap{max-width:1100px;margin:0 auto;padding:0 max(4vw,16px)}
+header{position:relative;background:var(--ai);color:var(--aiInk);padding:clamp(24px,4vw,48px) 0 clamp(20px,3vw,36px)}
+.kofi{position:absolute;top:clamp(14px,2vw,22px);right:max(4vw,16px);display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:0 14px;border-radius:999px;background:var(--shu);color:#fff;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.kofi:hover{filter:brightness(1.08)}
+@media(min-width:761px){header{padding-top:72px}.kofi{top:20px;right:max(max(4vw,16px),calc((100vw - 1100px)/2 + max(4vw,16px)))}}
+@media(max-width:560px){.kofi{min-height:34px;padding:0 12px;font-size:13px}}
+.top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,4vw,56px);align-items:end}
+h1{font:600 clamp(34px,6vw,52px)/1.05 "Zen Old Mincho",serif;margin:0 0 10px;letter-spacing:.02em}
+h1 small{display:block;font:500 16px/1.4 "Zen Kaku Gothic New",sans-serif;opacity:.8;margin-top:10px;letter-spacing:0}
+.lede{margin:0;max-width:52ch;opacity:.9}
+.count{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.count b{font:600 clamp(48px,9vw,84px)/1 "Zen Old Mincho",serif}
+.count span{opacity:.85}
+.seal{display:inline-grid;place-items:center;min-width:46px;height:46px;padding:0 8px;border-radius:8px;background:var(--shu);color:#fff;font:700 15px/1 "Zen Kaku Gothic New",sans-serif;transform:rotate(-4deg);white-space:nowrap}
+.me{margin-top:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:15px}
+.hbtn{background:transparent;border:1px solid rgba(255,255,255,.4);border-radius:8px;padding:8px 12px;min-height:40px;cursor:pointer;color:var(--aiInk);text-decoration:none;display:inline-flex;align-items:center}
+.hbtn:hover{background:rgba(255,255,255,.1)}
+.src{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.22);border-radius:12px;padding:14px 16px 16px}
+.src h2{font:700 15px/1.3 "Zen Kaku Gothic New",sans-serif;margin:0 0 10px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.tabs button{border:1px solid rgba(255,255,255,.3);background:transparent;color:var(--aiInk);border-radius:999px;padding:0 14px;min-height:38px;cursor:pointer;font-size:14.5px}
+.tabs button[aria-selected=true]{background:#fff;color:#1f3b5c;border-color:#fff;font-weight:700}
+.pane label.lb{display:block;font-weight:700;margin-bottom:6px;font-size:15px}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.pane input[type=password],.pane select,.pane textarea{flex:1 1 220px;min-height:46px;border-radius:8px;border:1px solid rgba(255,255,255,.35);background:rgba(0,0,0,.18);color:#fff;padding:0 12px;font-size:16px}
+.pane select option{color:#17191e;background:#fff}
+.pane textarea{width:100%;min-height:96px;padding:10px 12px;resize:vertical;font-family:"Zen Old Mincho","Hiragino Mincho ProN",serif}
+.go{min-height:46px;padding:0 18px;border-radius:8px;border:0;background:var(--shu);color:#fff;font-weight:700;cursor:pointer}
+.go:hover{filter:brightness(1.08)}
+.pane p{margin:10px 0 0;font-size:13.5px;opacity:.85}
+.pane .chk{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px}
+.status{margin-top:12px;font-size:14px;min-height:1.4em}
+.status.err{color:#ffd2c9;font-weight:700}
+.bar{height:4px;background:rgba(255,255,255,.2);border-radius:4px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;width:0;background:var(--shu);transition:width .3s}
+.tip{margin-top:12px;font-size:14px;opacity:.85}
+.tip a{color:#fff}
+.tools{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--rule)}
+.tools .wrap{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding-top:12px;padding-bottom:12px}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:0 14px;min-height:42px;cursor:pointer;color:var(--mute)}
+.seg button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.tools input[type=search],.tools select{min-height:42px;border:1px solid var(--rule);border-radius:10px;background:var(--bg);padding:0 12px;font-size:16px}
+.tools input[type=search]{flex:1 1 200px}
+.more{border:1px solid var(--rule);border-radius:10px;background:transparent;min-height:42px;padding:0 14px;cursor:pointer}
+.opts{display:none;width:100%;gap:8px 18px;flex-wrap:wrap;font-size:14.5px;padding-top:4px}
+.opts.on{display:flex}
+.opts label{display:flex;gap:8px;align-items:center;min-height:36px}
+:focus-visible{outline:3px solid var(--shu);outline-offset:2px}
+main{padding:clamp(18px,3vw,32px) 0 64px}
+.lvl{margin:0 0 28px}
+.lvl h2{display:flex;align-items:center;gap:14px;font:600 24px/1.2 "Zen Old Mincho",serif;margin:0 0 6px;padding-bottom:10px;border-bottom:2px solid var(--ink)}
+.lvl h2 em{font:500 14px/1 "Zen Kaku Gothic New",sans-serif;font-style:normal;color:var(--mute);margin-left:auto;white-space:nowrap}
+.lvl h2 .seal{min-width:40px;height:40px;font-size:14px}
+ul.words{list-style:none;margin:0;padding:0}
+.w{border-bottom:1px solid var(--rule)}
+.wbtn{all:unset;box-sizing:border-box;display:grid;grid-template-columns:minmax(7.5em,auto) minmax(0,1fr) auto;gap:4px 18px;align-items:center;width:100%;padding:12px 4px;cursor:pointer}
+.wbtn:hover{background:var(--soft)}
+.wbtn:focus-visible{outline:3px solid var(--shu);outline-offset:-3px}
+.k{font:600 28px/1.15 "Zen Old Mincho",serif;white-space:nowrap}
+.r{display:block;font-size:14px;color:var(--mute);margin-top:2px}
+.g{color:var(--ink);overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.meta{display:flex;flex-direction:column;align-items:flex-end;gap:6px;font-size:12.5px;color:var(--mute);white-space:nowrap}
+.dots{display:inline-flex;gap:3px}.dots i{width:7px;height:7px;border-radius:50%;background:var(--rule)}.dots i.f{background:var(--shu)}
+.pos{border:1px solid var(--rule);border-radius:999px;padding:1px 8px}
+.w.known .k,.w.known .g{opacity:.45}
+.det{display:none;padding:4px 4px 16px;gap:10px}
+.w.open .det{display:grid}
+.kl{display:flex;flex-wrap:wrap;gap:8px}
+.kc{display:flex;gap:10px;align-items:center;border:1px solid var(--rule);border-radius:10px;padding:6px 12px 6px 8px;text-decoration:none}
+.kc b{font:600 24px/1 "Zen Old Mincho",serif}
+.kc small{display:block;color:var(--mute);font-size:12.5px}
+.full{color:var(--ink);font-size:15px}
+.acts{display:flex;gap:8px;flex-wrap:wrap}
+.acts a,.acts button{border:1px solid var(--rule);background:transparent;border-radius:8px;padding:0 12px;min-height:40px;display:inline-flex;align-items:center;text-decoration:none;cursor:pointer;font-size:14px}
+.acts .mk[aria-pressed=true]{background:var(--ok);border-color:var(--ok);color:#fff}
+.showmore{margin:14px 0 0;border:1px dashed var(--rule);background:transparent;border-radius:10px;min-height:44px;width:100%;cursor:pointer;color:var(--mute)}
+.empty{padding:40px 0;color:var(--mute);max-width:64ch}
+.empty h2{font:600 26px/1.2 "Zen Old Mincho",serif;color:var(--ink);margin:0 0 8px}
+.how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:24px}
+.how div{border-top:2px solid var(--ink);padding-top:10px}
+.how b{display:block;color:var(--ink);margin-bottom:4px}
+footer{border-top:1px solid var(--rule);padding:22px 0 40px;color:var(--mute);font-size:13px}
+footer p{margin:4px 0;max-width:80ch}
+.support{display:inline-flex;align-items:center;gap:8px;margin:0 0 12px;padding:0 14px;min-height:40px;border-radius:999px;background:var(--shu);color:#fff;text-decoration:none;font-weight:700;font-size:14px}
+@media(max-width:760px){.top{grid-template-columns:minmax(0,1fr)}.how{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:560px){.wbtn{grid-template-columns:minmax(0,1fr) auto;gap:2px 12px}.wbtn .g{grid-column:1/-1;grid-row:2}.k{font-size:25px}.seg button{padding:0 10px}.lvl h2{font-size:20px}}
+@media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <a class="kofi" id="kofiTop" href="#" target="_blank" rel="noopener" hidden>♥ Support</a>
+  <div class="wrap top">
+    <div>
+      <h1>読める <small>Yomeru · words you can already read</small></h1>
+      <p class="lede">Japanese words made only from kanji you already know, ordered from most to least common. Bring your kanji from WaniKani, a JLPT level, a school grade or your own list.</p>
+      <div class="me" id="me" hidden></div>
+    </div>
+    <div>
+      <div class="src" id="src">
+        <h2>Where do your kanji come from?</h2>
+        <div class="tabs" role="tablist" aria-label="Kanji source">
+          <button type="button" role="tab" data-src="wk" aria-selected="true">WaniKani</button>
+          <button type="button" role="tab" data-src="jlpt" aria-selected="false">JLPT</button>
+          <button type="button" role="tab" data-src="grade" aria-selected="false">School grade</button>
+          <button type="button" role="tab" data-src="list" aria-selected="false">My own list</button>
+        </div>
+
+        <form class="pane" data-pane="wk" autocomplete="off">
+          <label class="lb" for="tok">WaniKani API token (read-only)</label>
+          <div class="row">
+            <input id="tok" type="password" placeholder="Paste your token" spellcheck="false" required>
+            <button class="go" type="submit">Load my words</button>
+          </div>
+          <label class="chk"><input type="checkbox" id="remember" checked> Remember on this device</label>
+          <p id="savedTok" hidden>Your saved token is filled in. <button type="button" class="hbtn" id="forgetTok" style="min-height:32px;padding:2px 10px;margin-left:4px">Forget it</button></p>
+          <p>Create one at WaniKani › Settings › API Tokens (the default read-only permissions are enough). Your token goes straight from this browser to WaniKani and nowhere else. Words WaniKani already teaches are left out.</p>
+        </form>
+
+        <form class="pane" data-pane="jlpt" hidden>
+          <label class="lb" for="jlpt">I know the kanji up to</label>
+          <div class="row">
+            <select id="jlpt">
+              <option value="5">N5 (about 80 kanji)</option>
+              <option value="4">N4 (about 250)</option>
+              <option value="3">N3 (about 600)</option>
+              <option value="2">N2 (about 1,000)</option>
+              <option value="1">N1 (about 2,200)</option>
+            </select>
+            <button class="go" type="submit">Show words</button>
+          </div>
+          <p>JLPT doesn't publish official kanji lists; these are the widely used unofficial lists by Jonathan Waller.</p>
+        </form>
+
+        <form class="pane" data-pane="grade" hidden>
+          <label class="lb" for="grade">I know the kanji taught up to</label>
+          <div class="row">
+            <select id="grade">
+              <option value="1">Grade 1 (80 kanji)</option>
+              <option value="2">Grade 2 (240)</option>
+              <option value="3">Grade 3 (440)</option>
+              <option value="4">Grade 4 (640)</option>
+              <option value="5">Grade 5 (825)</option>
+              <option value="6">Grade 6 (1,026 · all elementary)</option>
+              <option value="8">Secondary school (all 2,136 Jōyō)</option>
+            </select>
+            <button class="go" type="submit">Show words</button>
+          </div>
+          <p>The kanji Japanese children learn in each year of school (kyōiku kanji), then the rest of the Jōyō list.</p>
+        </form>
+
+        <form class="pane" data-pane="list" hidden>
+          <label class="lb" for="mine">Paste the kanji you know</label>
+          <textarea id="mine" lang="ja" placeholder="一二三人大山川日月… or any Japanese text"></textarea>
+          <div class="row" style="margin-top:8px;align-items:center">
+            <button class="go" type="submit">Show words</button>
+            <span id="mineCount" style="font-size:14px;opacity:.85">0 kanji</span>
+          </div>
+          <p>Paste a list from Anki, a textbook index or any text; every kanji in it counts as known. Kept only on this device.</p>
+        </form>
+
+        <div class="status" id="status" role="status"></div>
+        <div class="bar" id="bar" hidden><i></i></div>
+      </div>
+      <div class="count" id="count" hidden></div>
+      <div class="tip" id="tip" hidden></div>
+    </div>
+  </div>
+</header>
+
+<div class="tools" id="tools" hidden>
+  <div class="wrap">
+    <div class="seg" role="group" aria-label="View">
+      <button type="button" data-view="level" aria-pressed="true">By level</button>
+      <button type="button" data-view="freq" aria-pressed="false">All by frequency</button>
+    </div>
+    <input type="search" id="q" placeholder="Search kanji, reading or meaning">
+    <select id="pos" aria-label="Word type">
+      <option value="">All word types (no prefixes)</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option>suffix</option><option>prefix</option>
+    </select>
+    <button type="button" class="more" id="moreBtn" aria-expanded="false">Options</button>
+    <div class="opts" id="opts">
+      <label id="modeWrap">Kanji counts as learned when
+        <select id="mode">
+          <option value="guru">it reaches Guru</option>
+          <option value="lesson">I've done its lesson</option>
+          <option value="level">it's at or below my level</option>
+        </select></label>
+      <label>Show
+        <select id="freq">
+          <option value="35">common words</option>
+          <option value="30">common + less common</option>
+          <option value="0">everything</option>
+        </select></label>
+      <label><input type="checkbox" id="uk"> Include words usually written in kana</label>
+      <label><input type="checkbox" id="hideKnown" checked> Hide words I've marked known</label>
+      <button type="button" class="more" id="csv">Download CSV</button>
+      <button type="button" class="more" id="refresh">Refresh from WaniKani</button>
+    </div>
+  </div>
+</div>
+
+<main class="wrap" id="main">
+  <div class="empty" id="intro">
+    <h2>Find the words hiding in the kanji you know</h2>
+    <p>Kanji courses teach each character with a handful of example words. Once you know a few dozen kanji, there are hundreds of everyday words you can already read that nobody has shown you. This finds them.</p>
+    <div class="how">
+      <div><b>1 · Your kanji</b>From your WaniKani account, a JLPT level, a school grade, or a list you paste in.</div>
+      <div><b>2 · The dictionary</b>Checks about 31,000 words from JMdict, the open Japanese–English dictionary.</div>
+      <div><b>3 · Your new words</b>Keeps the words made only of your kanji, most common first, grouped by the level that unlocked them.</div>
+    </div>
+  </div>
+  <div id="list"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="support" id="support" href="#" target="_blank" rel="noopener" hidden>♥ Support Yomeru</a>
+    <p>Dictionary: <a href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project">JMdict</a> and <a href="https://www.edrdg.org/wiki/index.php/KANJIDIC_Project">KANJIDIC</a> by the Electronic Dictionary Research and Development Group, CC BY-SA 4.0, via <a href="https://github.com/scriptin/jmdict-simplified">jmdict-simplified</a> and <a href="https://github.com/davidluzgouveia/kanji-data">kanji-data</a>. JLPT kanji levels: Jonathan Waller's lists. Word frequency: <a href="https://github.com/rspeer/wordfreq">wordfreq</a>, CC BY-SA 4.0. <span id="dictDate"></span></p>
+    <p>Not affiliated with WaniKani, Tofugu or the JLPT. WaniKani mode uses the public WaniKani API with your own token.</p>
+  </div>
+</footer>
+
+<script src="words.js"></script>
+<script src="kanji.js"></script>
+<script>
+{
+/* ---- Settings: paste your Ko-fi / Buy Me a Coffee / GitHub Sponsors link here to show the support button ---- */
+const DONATE_URL = 'https://ko-fi.com/yomeru';
+
+const API = 'https://api.wanikani.com/v2/';
+const LS = 'yomeru.';
+const KANJI_RE = /[一-鿿㐀-䶿]/g;
+const KJ = window.KANJI || {};
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(LS + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(LS + k, JSON.stringify(v)); } catch {} },
+  del(k) { try { localStorage.removeItem(LS + k); } catch {} }
+};
+
+if (DONATE_URL) {
+  for (const s of [$('#support'), $('#kofiTop')]) { s.href = DONATE_URL; s.hidden = false; }
+}
+
+const WORDS = (window.VOCAB || []).map((r, i) => ({ i, k: r[0], r: r[1], g: r[2], p: r[3], s: r[4], common: !!(r[5] & 1), uk: !!(r[5] & 2), ks: [...new Set(r[0].match(KANJI_RE) || [])] }));
+if (window.VOCAB_META) $('#dictDate').textContent = 'Dictionary version ' + window.VOCAB_META.jmdict + '.';
+
+let token = store.get('token', '');
+let user = null, subj = null, assigns = null;
+let known = new Set(store.get('known', []));
+const prefs = Object.assign({ view: 'level', mode: 'guru', freq: '35', uk: false, hideKnown: true, src: 'wk', jlpt: '4', grade: '2' }, store.get('prefs', {}));
+let shown = {}, openIdx = null, result = [], calc = null;
+const savePrefs = () => store.set('prefs', prefs);
+
+function setStatus(msg, err) { const s = $('#status'); s.textContent = msg || ''; s.className = 'status' + (err ? ' err' : ''); }
+function progress(p) { const b = $('#bar'); b.hidden = p == null; if (p != null) b.firstElementChild.style.width = Math.round(p * 100) + '%'; }
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+/* ---------- source picker ---------- */
+function pickTab(src) {
+  document.querySelectorAll('[data-src]').forEach(b => b.setAttribute('aria-selected', b.dataset.src === src));
+  document.querySelectorAll('[data-pane]').forEach(p => p.hidden = p.dataset.pane !== src);
+  setStatus('');
+}
+document.querySelectorAll('[data-src]').forEach(b => b.onclick = () => pickTab(b.dataset.src));
+const kanjiIn = t => [...new Set(t.match(KANJI_RE) || [])];
+// Each source keeps its own settings while you switch between them
+$('#mine').oninput = () => { $('#mineCount').textContent = kanjiIn($('#mine').value).length + ' kanji'; store.set('mine', $('#mine').value); };
+$('#mine').value = store.get('mine', ''); $('#mineCount').textContent = kanjiIn($('#mine').value).length + ' kanji';
+$('#jlpt').value = prefs.jlpt; $('#grade').value = prefs.grade;
+$('#jlpt').onchange = () => { prefs.jlpt = $('#jlpt').value; savePrefs(); };
+$('#grade').onchange = () => { prefs.grade = $('#grade').value; savePrefs(); };
+function showSavedToken() { $('#tok').value = token || ''; $('#savedTok').hidden = !store.get('token', ''); }
+showSavedToken();
+$('#forgetTok').onclick = () => { store.del('token'); store.del('subjects'); token = ''; subj = null; showSavedToken(); setStatus('Token forgotten on this device.'); };
+
+document.querySelector('[data-pane=wk]').onsubmit = e => {
+  e.preventDefault();
+  token = $('#tok').value.trim();
+  if ($('#remember').checked) store.set('token', token); else store.del('token');
+  showSavedToken();
+  prefs.src = 'wk'; savePrefs(); loadWK(false);
+};
+document.querySelector('[data-pane=jlpt]').onsubmit = e => { e.preventDefault(); prefs.src = 'jlpt'; prefs.jlpt = $('#jlpt').value; savePrefs(); showApp(); };
+document.querySelector('[data-pane=grade]').onsubmit = e => { e.preventDefault(); prefs.src = 'grade'; prefs.grade = $('#grade').value; savePrefs(); showApp(); };
+document.querySelector('[data-pane=list]').onsubmit = e => {
+  e.preventDefault();
+  if (!kanjiIn($('#mine').value).length) { setStatus('Paste at least one kanji first.', true); return; }
+  store.set('mine', $('#mine').value); prefs.src = 'list'; savePrefs(); showApp();
+};
+
+/* ---------- WaniKani ---------- */
+async function wk(path, onPage) {
+  let url = API + path, out = [];
+  while (url) {
+    const res = await fetch(url, { headers: { Authorization: 'Bearer ' + token, 'Wanikani-Revision': '20170710' } });
+    if (res.status === 401) throw new Error('WaniKani didn’t accept that token. Check you copied the whole thing.');
+    if (res.status === 429) { setStatus('WaniKani asked us to slow down, waiting a moment…'); await sleep(15000); continue; }
+    if (!res.ok) throw new Error('WaniKani returned an error (' + res.status + '). Try again in a minute.');
+    const j = await res.json();
+    if (j.object !== 'collection') return j;
+    out.push(...j.data);
+    if (onPage) onPage(out.length, j.total_count);
+    url = j.pages && j.pages.next_url;
+  }
+  return out;
+}
+
+async function loadWK(force) {
+  $('#src').hidden = false;
+  setStatus('Connecting to WaniKani…'); progress(0.02);
+  try {
+    user = (await wk('user')).data;
+    subj = store.get('subjects', null);
+    if (force || !subj || subj.v !== 1 || Date.now() - subj.t > 7 * 864e5) {
+      setStatus('Downloading WaniKani’s kanji list (first time only)…');
+      const kanji = await wk('subjects?types=kanji', (n, t) => progress(0.05 + 0.25 * n / t));
+      setStatus('Downloading WaniKani’s vocabulary list (first time only)…');
+      const vocab = await wk('subjects?types=vocabulary,kana_vocabulary', (n, t) => progress(0.3 + 0.5 * n / t));
+      subj = { v: 1, t: Date.now(),
+        kanji: kanji.map(s => [s.id, s.data.characters, s.data.level, (s.data.meanings.find(m => m.primary) || s.data.meanings[0] || {}).meaning || '']),
+        vocab: vocab.map(s => s.data.characters).filter(Boolean) };
+      store.set('subjects', subj);
+    }
+    setStatus('Reading your progress…'); progress(0.85);
+    const a = await wk('assignments?subject_types=kanji&unlocked=true');
+    assigns = a.map(x => ({ id: x.data.subject_id, stage: x.data.srs_stage, started: !!x.data.started_at, passed: !!x.data.passed_at }));
+    progress(1); setStatus(''); setTimeout(() => progress(null), 400);
+    showApp();
+  } catch (e) {
+    progress(null); pickTab('wk');
+    setStatus(e.message === 'Failed to fetch' ? 'Couldn’t reach WaniKani. Check your connection and try again.' : e.message, true);
+  }
+}
+
+/* ---------- sources → learned kanji + grouping ---------- */
+// Each source returns: learned Set, group(char) -> number (higher = later), label(n), seal(n), tag(char), link(char), exclude Set
+function source() {
+  const kjLink = c => 'https://jisho.org/search/' + encodeURIComponent(c + ' #kanji');
+  const kjMean = c => (KJ[c] || [''])[0];
+  if (prefs.src === 'wk') {
+    const info = new Map(subj.kanji.map(([id, ch, lv, m]) => [ch, { id, lv, m }]));
+    const byId = new Map(subj.kanji.map(([id, ch]) => [id, ch]));
+    const learned = new Set();
+    if (prefs.mode === 'level') { for (const [, ch, lv] of subj.kanji) if (lv <= user.level) learned.add(ch); }
+    else for (const a of assigns) if ((prefs.mode === 'guru' ? (a.stage >= 5 || a.passed) : a.started) && byId.has(a.id)) learned.add(byId.get(a.id));
+    return { learned, exclude: new Set(subj.vocab),
+      group: c => info.get(c).lv, label: n => 'New at level ' + n, seal: n => 'Lv ' + n,
+      mean: c => info.get(c).m, tag: c => 'Level ' + info.get(c).lv,
+      link: c => 'https://www.wanikani.com/kanji/' + encodeURIComponent(c),
+      summary: `<span class="seal" title="Your WaniKani level">Lv ${user.level}</span><span>${esc(user.username)} · ${learned.size} kanji counted as learned</span>` };
+  }
+  if (prefs.src === 'jlpt') {
+    const t = +prefs.jlpt, learned = new Set(Object.keys(KJ).filter(c => KJ[c][1] && KJ[c][1] >= t));
+    return { learned, exclude: new Set(),
+      group: c => 6 - KJ[c][1], label: n => 'New at N' + (6 - n), seal: n => 'N' + (6 - n),
+      mean: kjMean, tag: c => 'JLPT N' + KJ[c][1], link: kjLink,
+      summary: `<span class="seal">N${t}</span><span>JLPT N5–N${t} · ${learned.size} kanji</span>` };
+  }
+  if (prefs.src === 'grade') {
+    const t = +prefs.grade, learned = new Set(Object.keys(KJ).filter(c => KJ[c][2] && KJ[c][2] <= t));
+    const gl = g => g === 8 ? 'Secondary school' : 'Grade ' + g;
+    return { learned, exclude: new Set(),
+      group: c => KJ[c][2], label: n => 'New in ' + gl(n).toLowerCase().replace('grade', 'grade'), seal: n => n === 8 ? '中' : 'G' + n,
+      mean: kjMean, tag: c => gl(KJ[c][2]), link: kjLink,
+      summary: `<span class="seal">${t === 8 ? '中' : 'G' + t}</span><span>${t === 8 ? 'All Jōyō kanji' : 'Grades 1–' + t} · ${learned.size} kanji</span>` };
+  }
+  const learned = new Set(kanjiIn(store.get('mine', '')));
+  return { learned, exclude: new Set(),
+    group: () => 1, label: () => 'Your words', seal: () => '読',
+    mean: kjMean, tag: c => KJ[c] && KJ[c][1] ? 'JLPT N' + KJ[c][1] : '', link: kjLink,
+    summary: `<span class="seal">読</span><span>My own list · ${learned.size} kanji</span>` };
+}
+
+function compute() {
+  const src = source(), out = [];
+  for (const w of WORDS) {
+    if (!w.ks.length || src.exclude.has(w.k)) continue;
+    let g = 0, ok = true;
+    for (const c of w.ks) { if (!src.learned.has(c)) { ok = false; break; } g = Math.max(g, src.group(c)); }
+    if (ok) out.push(Object.assign({ lv: g }, w));
+  }
+  return Object.assign({ out }, src);
+}
+
+function showApp() {
+  if (prefs.src === 'wk' && !subj) return;
+  $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false;
+  $('#modeWrap').hidden = $('#refresh').hidden = prefs.src !== 'wk';
+  shown = {}; openIdx = null;
+  calc = compute();
+  const me = $('#me'); me.hidden = false;
+  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">Change kanji source</button>' + (prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
+  $('#change').onclick = () => { $('#src').hidden = false; pickTab(prefs.src); $('#src').scrollIntoView({ block: 'nearest' }); };
+  if ($('#logout')) $('#logout').onclick = () => { store.del('token'); store.del('subjects'); token = ''; subj = null; prefs.src = 'wk'; savePrefs(); location.reload(); };
+  const tip = $('#tip');
+  tip.hidden = !DONATE_URL;
+  if (DONATE_URL) tip.innerHTML = `Finding it useful? <a href="${esc(DONATE_URL)}" target="_blank" rel="noopener">Support Yomeru</a> to keep it free.`;
+  render();
+}
+
+/* ---------- list ---------- */
+function filtered() {
+  const q = $('#q').value.trim().toLowerCase();
+  const pos = $('#pos').value, min = +prefs.freq;
+  return calc.out.filter(w =>
+    (min === 0 || w.s >= min || (min === 35 && w.common && w.s >= 30)) &&
+    (prefs.uk || !w.uk) &&
+    (!prefs.hideKnown || !known.has(w.k + '|' + w.r)) &&
+    (pos ? w.p === pos : w.p !== 'prefix') &&
+    (!q || w.k.includes(q) || w.r.includes(q) || w.g.toLowerCase().includes(q)));
+}
+
+function dots(s) { const n = s >= 50 ? 4 : s >= 42 ? 3 : s >= 35 ? 2 : 1; return `<span class="dots" title="${['', 'Less common', 'Common', 'Very common', 'Extremely common'][n]}">` + [1, 2, 3, 4].map(i => `<i class="${i <= n ? 'f' : ''}"></i>`).join('') + '</span>'; }
+
+function item(w) {
+  const isK = known.has(w.k + '|' + w.r), open = openIdx === w.i;
+  return `<li class="w${isK ? ' known' : ''}${open ? ' open' : ''}" data-i="${w.i}">
+    <button class="wbtn" type="button" aria-expanded="${open}">
+      <span><span class="k" lang="ja">${esc(w.k)}</span><span class="r" lang="ja">${esc(w.r)}</span></span>
+      <span class="g">${esc(w.g.split(' | ')[0])}</span>
+      <span class="meta">${dots(w.s)}${w.p ? `<span class="pos">${esc(w.p)}</span>` : ''}</span>
+    </button>
+    <div class="det">${open ? detail(w) : ''}</div></li>`;
+}
+
+function detail(w) {
+  const kc = w.ks.map(c => `<a class="kc" href="${calc.link(c)}" target="_blank" rel="noopener"><b lang="ja">${esc(c)}</b><span>${esc(calc.mean(c) || '')}<small>${esc(calc.tag(c) || '')}</small></span></a>`).join('');
+  const isK = known.has(w.k + '|' + w.r);
+  return `<div class="full">${w.g.split(' | ').map((g, i) => `${i + 1}. ${esc(g)}`).join('<br>')}</div>
+    <div class="kl">${kc}</div>
+    <div class="acts"><a href="https://jisho.org/word/${encodeURIComponent(w.k)}" target="_blank" rel="noopener">Look up on Jisho</a>
+    <button type="button" class="mk" aria-pressed="${isK}" data-known="${w.i}">${isK ? 'Marked known' : 'Mark as known'}</button></div>`;
+}
+
+const PAGE = 60;
+function render() {
+  const list = filtered(), total = calc.out.length;
+  result = list;
+  $('#count').hidden = false;
+  $('#count').innerHTML = `<b>${list.length.toLocaleString()}</b><span>${prefs.src === 'wk' ? 'extra ' : ''}words you can read${list.length !== total ? `<br>(${total.toLocaleString()} before filters)` : ''}</span>`;
+  const el = $('#list');
+  if (!list.length) {
+    const why = !calc.learned.size
+      ? (prefs.src === 'wk' ? 'Once some kanji reach Guru on WaniKani they’ll unlock words here. You can also count kanji as learned once you’ve done their lesson, under Options.' : 'No kanji found for this source.')
+      : 'Nothing matches these filters. Try showing less common words or clearing the search.';
+    el.innerHTML = `<div class="empty"><h2>No words yet</h2><p>${why}</p></div>`;
+    return;
+  }
+  const grouped = prefs.view === 'level' && prefs.src !== 'list';
+  if (!grouped) {
+    const n = shown.all || PAGE;
+    el.innerHTML = `<section class="lvl"><ul class="words">${list.slice(0, n).map(item).join('')}</ul>${n < list.length ? `<button class="showmore" data-more="all">Show more (${(list.length - n).toLocaleString()} left)</button>` : ''}</section>`;
+    return;
+  }
+  const groups = new Map();
+  for (const w of list) { if (!groups.has(w.lv)) groups.set(w.lv, []); groups.get(w.lv).push(w); }
+  const lvls = [...groups.keys()].sort((a, b) => b - a);
+  el.innerHTML = lvls.map(lv => {
+    const ws = groups.get(lv), n = shown[lv] || (lv === lvls[0] ? PAGE : 20);
+    return `<section class="lvl"><h2><span class="seal">${esc(calc.seal(lv))}</span>${esc(calc.label(lv))}<em>${ws.length.toLocaleString()} words</em></h2>
+      <ul class="words">${ws.slice(0, n).map(item).join('')}</ul>
+      ${n < ws.length ? `<button class="showmore" data-more="${lv}">Show more (${(ws.length - n).toLocaleString()} left)</button>` : ''}</section>`;
+  }).join('');
+}
+
+$('#list').addEventListener('click', e => {
+  const more = e.target.closest('[data-more]');
+  if (more) { const k = more.dataset.more; shown[k] = (shown[k] || (k === 'all' ? PAGE : 20)) + (k === 'all' ? 200 : 60); render(); return; }
+  const mk = e.target.closest('[data-known]');
+  if (mk) {
+    const w = WORDS[+mk.dataset.known], id = w.k + '|' + w.r;
+    known.has(id) ? known.delete(id) : known.add(id);
+    store.set('known', [...known]);
+    mk.closest('.w').classList.toggle('known', known.has(id));
+    mk.setAttribute('aria-pressed', known.has(id)); mk.textContent = known.has(id) ? 'Marked known' : 'Mark as known';
+    return;
+  }
+  const btn = e.target.closest('.wbtn');
+  if (btn) {
+    const li = btn.closest('.w'), i = +li.dataset.i;
+    const prev = document.querySelector('.w.open');
+    if (prev && prev !== li) { prev.classList.remove('open'); prev.querySelector('.wbtn').setAttribute('aria-expanded', 'false'); }
+    openIdx = openIdx === i ? null : i;
+    li.classList.toggle('open', openIdx === i);
+    btn.setAttribute('aria-expanded', openIdx === i);
+    if (openIdx === i) li.querySelector('.det').innerHTML = detail(calc.out.find(w => w.i === i));
+  }
+});
+
+document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => {
+  prefs.view = b.dataset.view; savePrefs(); shown = {};
+  document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x === b)); render();
+});
+let qt; $('#q').oninput = () => { clearTimeout(qt); qt = setTimeout(() => { shown = {}; render(); }, 150); };
+$('#pos').onchange = () => { shown = {}; render(); };
+$('#moreBtn').onclick = () => { const o = $('#opts').classList.toggle('on'); $('#moreBtn').setAttribute('aria-expanded', o); };
+$('#mode').value = prefs.mode; $('#freq').value = prefs.freq; $('#uk').checked = prefs.uk; $('#hideKnown').checked = prefs.hideKnown;
+document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x.dataset.view === prefs.view));
+$('#mode').onchange = e => { prefs.mode = e.target.value; savePrefs(); showApp(); };
+$('#freq').onchange = e => { prefs.freq = e.target.value; savePrefs(); shown = {}; render(); };
+$('#uk').onchange = e => { prefs.uk = e.target.checked; savePrefs(); render(); };
+$('#hideKnown').onchange = e => { prefs.hideKnown = e.target.checked; savePrefs(); render(); };
+$('#refresh').onclick = () => loadWK(true);
+$('#csv').onclick = () => {
+  const rows = [['Word', 'Reading', 'Meaning', 'Type', 'Unlocked at']].concat(result.map(w => [w.k, w.r, w.g.replace(/ \| /g, '; '), w.p, calc.label(w.lv).replace(/^New (at|in) /, '')]));
+  const csv = '﻿' + rows.map(r => r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'yomeru-words.csv'; document.body.append(a); a.click(); a.remove();
+};
+
+/* ---------- start ---------- */
+pickTab(prefs.src);
+if (!WORDS.length) setStatus('The word list (words.js) didn’t load. Keep it in the same folder as this page.', true);
+else if (prefs.src === 'wk') { if (token) loadWK(false); }
+else if (prefs.src === 'list' && !kanjiIn(store.get('mine', '')).length) pickTab('list');
+else showApp();
+}
+</script>
+</body>
+</html>
