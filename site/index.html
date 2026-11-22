@@ -115,7 +115,6 @@ ul.words{list-style:none;margin:0;padding:0}
 .trow .go{min-height:44px}
 #tryCount{font-size:15px}#tryCount b{font-size:20px;color:var(--ink)}
 .top .try{margin:0}
-.srcBtn{margin-top:12px;width:100%;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}
 .demo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:12px 14px;border-radius:12px;background:var(--soft);border:1px solid var(--rule);font-size:15px}
 .demo .hbtn{min-height:36px}
 .how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:24px}
@@ -182,8 +181,29 @@ ul.words{background:var(--card);border:1px solid var(--rule);border-radius:16px;
 #exportDlg{background:var(--bg)}
 .xfmts label{background:var(--card)}
 footer{background:var(--soft)}
-body.first .top{align-items:center}
+body.home .top{align-items:center}
 @media(prefers-color-scheme:dark){.kpick button[aria-pressed=true]{background:#2f5d8f;border-color:#4a7ab0}header{background:radial-gradient(120% 140% at 85% 0%,#22395a 0%,#16263b 60%,#0f1a29 100%)}}
+
+/* ---- tabs ---- */
+header{padding-top:0!important}
+.nav{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;padding-top:14px;padding-bottom:18px;padding-right:130px}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;color:var(--aiInk);text-decoration:none;padding:8px 14px;border-radius:999px;font-weight:500;font-size:15px;opacity:.82}
+.nav a:hover{opacity:1;background:rgba(255,255,255,.08)}
+.nav a[aria-current=page]{opacity:1;background:#fff;color:#1f3b5c;font-weight:700}
+.kofi{top:14px!important}
+.src .tabs,.src>h2{display:none}
+body.home #intro{padding-top:8px}
+.howto{max-width:70ch;color:var(--mute)}
+.howto h2{font:600 28px/1.2 "Zen Old Mincho",serif;color:var(--ink);margin:8px 0 8px}
+.steps{list-style:none;counter-reset:st;margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.steps li{counter-increment:st;background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:16px 16px 14px}
+.steps li::before{content:counter(st);display:inline-grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--shu);color:#fff;font-weight:700;transform:rotate(-4deg);margin-bottom:8px}
+.steps b{display:block;color:var(--ink);font:600 18px/1.3 "Zen Old Mincho",serif;margin-bottom:4px}
+.tokhelp{margin-top:18px;background:var(--card);border:1px solid var(--rule);border-radius:16px;padding:4px 16px}
+.tokhelp summary{cursor:pointer;font-weight:700;color:var(--ink);min-height:44px;display:flex;align-items:center}
+.tokhelp ol{padding-left:22px}.tokhelp li{margin:6px 0}
+@media(max-width:760px){.steps{grid-template-columns:minmax(0,1fr)}.nav{width:calc(100% - 104px);margin:0;padding-right:8px;padding-bottom:12px;-webkit-mask-image:linear-gradient(90deg,#000 85%,transparent);mask-image:linear-gradient(90deg,#000 85%,transparent)}.nav a{padding:7px 11px;font-size:14px}}
 
 /* ---- compact header on phones once the word list is showing ---- */
 @media(max-width:760px){
@@ -208,11 +228,68 @@ body.first .top{align-items:center}
   .wbtn{grid-template-columns:minmax(5.5em,auto) minmax(0,1fr) auto;gap:4px 12px;padding:12px 12px}
   .k{font-size:26px}
 }
+
+/* ---- Japanese artwork: waves, Fuji, torii, sakura, seals ---- */
+header::after{content:none}
+header::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='24' viewBox='0 0 48 24'%3E%3Cg fill='none' stroke='%23ffffff' stroke-width='1.3'%3E%3Cpath d='M0 24a24 24 0 0 1 48 0M6 24a18 18 0 0 1 36 0M12 24a12 12 0 0 1 24 0M18 24a6 6 0 0 1 12 0'/%3E%3Cpath d='M-24 12a24 24 0 0 1 48 0M-18 12a18 18 0 0 1 36 0M-12 12a12 12 0 0 1 24 0M-6 12a6 6 0 0 1 12 0M24 12a24 24 0 0 1 48 0M30 12a18 18 0 0 1 36 0M36 12a12 12 0 0 1 24 0M42 12a6 6 0 0 1 12 0'/%3E%3C/g%3E%3C/svg%3E");background-size:48px 24px;opacity:.05;pointer-events:none}
+.scene{position:absolute;left:0;right:0;bottom:12px;width:100%;height:170px;pointer-events:none}
+body.app .scene .deco{display:none}
+header{padding-bottom:calc(clamp(20px,3vw,36px) + 40px)!important}
+header .nav,header .top{position:relative;z-index:2}
+header{background:radial-gradient(120% 140% at 85% 0%,#2b4d74 0%,var(--ai) 55%,#162c46 100%)}
+.edgebar{display:block;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12' viewBox='0 0 24 12'%3E%3Cpath d='M0 12a12 12 0 0 1 24 0Z' fill='%23fbf8f2'/%3E%3C/svg%3E") bottom/24px 12px repeat-x;margin-top:-12px;position:relative;z-index:3}
+@media(prefers-color-scheme:dark){.edgebar{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12' viewBox='0 0 24 12'%3E%3Cpath d='M0 12a12 12 0 0 1 24 0Z' fill='%23121418'/%3E%3C/svg%3E")}}
+.petals{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+.petals i{position:absolute;top:-20px;width:11px;height:8px;background:linear-gradient(135deg,#ffd3e2,#f39ab8);border-radius:150% 0 150% 0;opacity:.85;animation:fall 14s linear infinite}
+.petals i:nth-child(1){left:8%;animation-delay:0s}.petals i:nth-child(2){left:22%;animation-delay:-5s;animation-duration:17s}
+.petals i:nth-child(3){left:37%;animation-delay:-9s}.petals i:nth-child(4){left:51%;animation-delay:-2s;animation-duration:19s}
+.petals i:nth-child(5){left:63%;animation-delay:-11s;animation-duration:15s}.petals i:nth-child(6){left:74%;animation-delay:-7s}
+.petals i:nth-child(7){left:86%;animation-delay:-13s;animation-duration:18s}.petals i:nth-child(8){left:94%;animation-delay:-4s}
+@keyframes fall{0%{transform:translate(0,0) rotate(0)}25%{transform:translate(18px,120px) rotate(90deg)}50%{transform:translate(-10px,260px) rotate(180deg)}75%{transform:translate(16px,400px) rotate(270deg)}100%{transform:translate(0,560px) rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.petals{display:none}}
+/* colourful kanji tiles and seals */
+:root{--sakura:#e0568a;--matcha:#4f8f3a;--ai2:#2f6fb5;--yama:#d9961a;--fuji:#7a52b3}
+.kpick button[aria-pressed=true]{color:#fff!important;border-color:transparent!important}
+.kpick button[aria-pressed=true]:nth-child(5n+1){background:var(--ai2)!important}
+.kpick button[aria-pressed=true]:nth-child(5n+2){background:var(--sakura)!important}
+.kpick button[aria-pressed=true]:nth-child(5n+3){background:var(--fuji)!important}
+.kpick button[aria-pressed=true]:nth-child(5n+4){background:var(--matcha)!important}
+.kpick button[aria-pressed=true]:nth-child(5n+5){background:var(--yama)!important}
+.lvl:nth-of-type(5n+2) h2 .seal{background:var(--ai2)}.lvl:nth-of-type(5n+3) h2 .seal{background:var(--fuji)}
+.lvl:nth-of-type(5n+4) h2 .seal{background:var(--matcha)}.lvl:nth-of-type(5n+5) h2 .seal{background:var(--yama)}
+.steps li::before{content:none}
+.steps li{position:relative;overflow:hidden;border-top:5px solid var(--c)}
+.steps li:nth-child(1){--c:var(--shu)}.steps li:nth-child(2){--c:var(--ai2)}.steps li:nth-child(3){--c:var(--matcha)}.steps li:nth-child(4){--c:var(--yama)}
+.steps .ico{display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);margin-bottom:10px}
+.steps .ico svg{width:28px;height:28px}
+.steps li::after{content:attr(data-n);position:absolute;right:12px;top:4px;font:600 54px/1 "Zen Old Mincho",serif;color:var(--c);opacity:.12}
+.howto h2::before{content:"";display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--shu);margin-right:10px;vertical-align:middle;box-shadow:0 0 0 4px color-mix(in srgb,var(--shu) 20%,transparent)}
+footer{position:relative;background:var(--soft);padding-top:30px}
+footer::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12' viewBox='0 0 24 12'%3E%3Cpath d='M0 12a12 12 0 0 1 24 0Z' fill='%23fbf8f2'/%3E%3C/svg%3E") top/24px 12px repeat-x;transform:scaleY(-1)}
+@media(prefers-color-scheme:dark){footer::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12' viewBox='0 0 24 12'%3E%3Cpath d='M0 12a12 12 0 0 1 24 0Z' fill='%23121418'/%3E%3C/svg%3E")}}
+
 </style>
 </head>
 <body>
 <header>
+  <svg class="scene" viewBox="0 0 1200 170" preserveAspectRatio="xMaxYMax slice" aria-hidden="true">
+    <g class="deco"><circle cx="1010" cy="64" r="44" fill="#d6402a" opacity=".92"/>
+    <g fill="#fff" opacity=".13"><rect x="840" y="40" width="120" height="14" rx="7"/><rect x="870" y="26" width="64" height="14" rx="7"/><rect x="1060" y="92" width="110" height="12" rx="6"/><rect x="200" y="54" width="140" height="14" rx="7"/><rect x="236" y="40" width="70" height="14" rx="7"/></g>
+    <path d="M0 170 Q130 118 280 140 T600 128 T880 146 T1200 120 V170Z" fill="#1b3a5d" opacity=".75"/>
+    <path d="M770 170 L905 78 Q915 70 926 74 L944 68 Q955 65 964 74 L1110 170Z" fill="#2d5a89"/>
+    <path d="M905 78 Q915 70 926 74 L944 68 Q955 65 964 74 L990 96 L972 90 L957 102 L940 88 L923 101 L908 89 L884 93Z" fill="#f4f1ea"/>
+    <g transform="translate(150 112)"><rect x="0" y="0" width="58" height="6" rx="2" fill="#d6402a"/><rect x="5" y="9" width="48" height="4" fill="#d6402a"/><rect x="11" y="6" width="5" height="44" fill="#d6402a"/><rect x="42" y="6" width="5" height="44" fill="#d6402a"/></g></g>
+    <path d="M0 170 V156 Q20 140 40 152 Q52 160 64 150 Q84 134 104 150 Q116 160 128 150 Q148 134 168 150 Q180 160 192 150 Q212 134 232 150 Q244 160 256 150 Q276 134 296 150 Q308 160 320 150 Q340 134 360 150 Q372 160 384 150 Q404 134 424 150 Q436 160 448 150 Q468 134 488 150 Q500 160 512 150 Q532 134 552 150 Q564 160 576 150 Q596 134 616 150 Q628 160 640 150 Q660 134 680 150 Q692 160 704 150 Q724 134 744 150 Q756 160 768 150 Q788 134 808 150 Q820 160 832 150 Q852 134 872 150 Q884 160 896 150 Q916 134 936 150 Q948 160 960 150 Q980 134 1000 150 Q1012 160 1024 150 Q1044 134 1064 150 Q1076 160 1088 150 Q1108 134 1128 150 Q1140 160 1152 150 Q1172 134 1192 150 Q1200 156 1200 156 V170Z" fill="#14304f"/>
+  </svg>
+  <div class="petals" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
   <a class="kofi" id="kofiTop" href="#" target="_blank" rel="noopener" hidden>♥ Support</a>
+  <nav class="wrap nav" id="nav" aria-label="Sections">
+    <a href="#home" data-go="home">Home</a>
+    <a href="#wk" data-go="wk">WaniKani</a>
+    <a href="#jlpt" data-go="jlpt">JLPT</a>
+    <a href="#grade" data-go="grade">School grade</a>
+    <a href="#list" data-go="list">My list</a>
+  </nav>
   <div class="wrap top">
     <div>
       <h1>読める <small>Yomeru · words you can already read</small></h1>
@@ -237,7 +314,7 @@ body.first .top{align-items:center}
           </div>
           <label class="chk"><input type="checkbox" id="remember" checked> Remember on this device</label>
           <p id="savedTok" hidden>Your saved token is filled in. <button type="button" class="hbtn" id="forgetTok" style="min-height:32px;padding:2px 10px;margin-left:4px">Forget it</button></p>
-          <p>Create one at WaniKani › Settings › API Tokens (the default read-only permissions are enough). Your token goes straight from this browser to WaniKani and nowhere else. Words WaniKani already teaches are left out.</p>
+          <p>Create one at <a href="https://www.wanikani.com/settings/personal_access_tokens" target="_blank" rel="noopener">WaniKani › Settings › API Tokens</a> (read-only is enough; <a href="#home" data-tokhelp>step-by-step help</a>). Your token goes straight from this browser to WaniKani and nowhere else. Words WaniKani already teaches are left out.</p>
         </form>
 
         <form class="pane" data-pane="jlpt" hidden>
@@ -290,6 +367,7 @@ body.first .top{align-items:center}
     </div>
   </div>
 </header>
+<div class="edgebar" aria-hidden="true"></div>
 
 <div class="tools" id="tools" hidden>
   <div class="wrap">
@@ -325,19 +403,31 @@ body.first .top{align-items:center}
 
 <main class="wrap" id="main">
   <div class="empty" id="intro">
-    <h2>Find the words hiding in the kanji you know</h2>
-    <p>Kanji courses teach each character with a handful of example words. Once you know a few dozen kanji, there are hundreds of everyday words you can already read that nobody has shown you. This finds them.</p>
     <div class="try" id="try">
       <h3>Try it with 日, 月 and 人</h3>
       <p>Tap kanji to add or remove them and watch the count change. No account needed.</p>
       <div class="kpick" id="kpick"></div>
       <div class="trow"><button type="button" class="go" id="tryGo">Show these words</button><span id="tryCount"></span></div>
     </div>
-    <div class="how">
-      <div><b>1 · Your kanji</b>From your WaniKani account, a JLPT level, a school grade, or a list you paste in.</div>
-      <div><b>2 · The dictionary</b>Checks about 31,000 words from JMdict, the open Japanese–English dictionary.</div>
-      <div><b>3 · Your new words</b>Keeps the words made only of your kanji, most common first, grouped by the level that unlocked them.</div>
-    </div>
+    <section class="howto">
+      <h2>How to use Yomeru</h2>
+      <p>Kanji courses teach each character with a handful of example words. Once you know a few dozen kanji, there are hundreds of everyday words you can already read that nobody has shown you. Yomeru finds them in about 31,000 words from JMdict, the open Japanese–English dictionary.</p>
+      <ol class="steps">
+        <li data-n="一"><span class="ico"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="4" y="7" width="32" height="5" rx="2" fill="currentColor"/><rect x="8" y="15" width="24" height="3" fill="currentColor"/><rect x="11" y="12" width="4" height="24" fill="currentColor"/><rect x="25" y="12" width="4" height="24" fill="currentColor"/></svg></span><b>Pick where your kanji come from</b>Use the tabs at the top: <a href="#wk">WaniKani</a>, a <a href="#jlpt">JLPT</a> level, a <a href="#grade">school grade</a>, or <a href="#list">my list</a> (paste any kanji or Japanese text).</li>
+        <li data-n="二"><span class="ico"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 10 Q12 5 4 7 V32 Q12 30 20 35 Q28 30 36 32 V7 Q28 5 20 10Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path d="M20 10 V35" stroke="currentColor" stroke-width="3"/></svg></span><b>Read your words</b>The most common words come first, grouped by the level that unlocked them. Search, or filter by word type.</li>
+        <li data-n="三"><span class="ico"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M30 4 L36 10 L18 28 L12 22Z" fill="currentColor"/><path d="M12 22 L18 28 Q14 36 5 36 Q6 27 12 22Z" fill="currentColor" opacity=".7"/></svg></span><b>Tap a word</b>See every meaning, the kanji it uses and a link to Jisho. Mark words you already know to hide them.</li>
+        <li data-n="四"><span class="ico"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 34 L3 16 A24 24 0 0 1 37 16Z" fill="currentColor" opacity=".25"/><path d="M20 34 L3 16 A24 24 0 0 1 37 16Z M20 34 L11 9 M20 34 L20 6 M20 34 L29 9" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><circle cx="20" cy="34" r="3" fill="currentColor"/></svg></span><b>Take them with you</b>Export makes an Anki deck, or text to paste into other flashcard apps.</li>
+      </ol>
+      <details class="tokhelp" id="tokHelp">
+        <summary>Using WaniKani? How to get your token (1 minute)</summary>
+        <ol>
+          <li>Open <a href="https://www.wanikani.com/settings/personal_access_tokens" target="_blank" rel="noopener">WaniKani › Settings › API Tokens</a> and sign in if asked.</li>
+          <li>Press <b>Generate a new token</b>. Give it any name, like "Yomeru", and leave the boxes unticked: read-only is all Yomeru needs.</li>
+          <li>Copy the token, open the <a href="#wk">WaniKani tab</a> here and paste it in.</li>
+        </ol>
+        <p>A read-only token can see your progress but can't change anything. It goes straight from your browser to WaniKani and nowhere else, and you can delete it on WaniKani at any time.</p>
+      </details>
+    </section>
   </div>
   <div id="list"></div>
 </main>
@@ -553,17 +643,14 @@ function compute() {
 function showApp() {
   if (!demo && prefs.src === 'wk' && !subj) return;
   document.body.classList.add('app');
-  $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false; $('#try').hidden = true; $('#srcBtn')?.remove();
+  $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false; $('#try').hidden = true;
   $('#modeWrap').hidden = $('#refresh').hidden = demo || prefs.src !== 'wk';
   shown = {}; openIdx = null;
   calc = compute();
   const me = $('#me'); me.hidden = false;
-  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + (demo ? 'Use my own kanji' : 'Change kanji source') + '</button>' + (!demo && prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
-  $('#change').onclick = () => { if (demo) { demo = false; } document.body.classList.remove('app'); $('#src').hidden = false; pickTab(prefs.src); $('#src').scrollIntoView({ block: 'nearest' }); };
-  if (demo) {
-    $('#me').insertAdjacentHTML('beforeend', '<button type="button" class="hbtn" id="moreKanji">Pick other kanji</button>');
-    $('#moreKanji').onclick = () => { demo = false; document.body.classList.remove('app'); $('#tools').hidden = true; $('#list').innerHTML = ''; $('#me').hidden = true; $('#src').hidden = false; $('#intro').hidden = false; $('#try').hidden = false; $('#count').hidden = true; $('#tip').hidden = true; $('#try').scrollIntoView({ block: 'center' }); };
-  }
+  const changeLabel = demo ? 'Pick other kanji' : { wk: 'Token', jlpt: 'Change level', grade: 'Change grade', list: 'Edit my list' }[prefs.src];
+  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + changeLabel + '</button>' + (!demo && prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
+  $('#change').onclick = () => { if (demo) go('home'); else showSetup(prefs.src); };
   if ($('#logout')) $('#logout').onclick = () => { store.del('token'); store.del('subjects'); token = ''; subj = null; prefs.src = 'wk'; savePrefs(); location.reload(); };
   const tip = $('#tip');
   tip.hidden = !DONATE_URL;
@@ -710,23 +797,45 @@ $('#kpick').onclick = e => {
 $('#tryGo').onclick = () => { demo = true; showApp(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
 drawTry();
 
-// First visit (nothing saved yet): lead with the demo, keep the sources one tap away.
+/* ---------- tabs: Home (demo + how-to) and one tab per kanji source ---------- */
+// The demo lives in the header on Home, where the source form or word count go on the other tabs.
+$('#src').parentNode.insertBefore($('#try'), $('#src'));
+const TABS = ['home', 'wk', 'jlpt', 'grade', 'list'];
 const firstVisit = !localStorage.getItem('yomeru.prefs') && !store.get('token', '') && !store.get('mine', '');
-if (firstVisit) {
-  document.body.classList.add('first');
-  const t = $('#try'), src = $('#src');
-  src.parentNode.insertBefore(t, src);
-  src.hidden = true;
-  t.insertAdjacentHTML('afterend', '<button type="button" class="srcBtn" id="srcBtn">Use my WaniKani, a JLPT level or my own list</button>');
-  $('#srcBtn').onclick = () => { $('#srcBtn').remove(); src.hidden = false; };
+function hideResults() {
+  document.body.classList.remove('app');
+  $('#tools').hidden = true; $('#list').innerHTML = ''; $('#me').hidden = true; $('#count').hidden = true; $('#tip').hidden = true;
 }
+function setNav(tab) {
+  document.querySelectorAll('[data-go]').forEach(a => { if (a.dataset.go === tab) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  document.body.classList.toggle('home', tab === 'home');
+}
+function showSetup(src) {
+  hideResults(); $('#try').hidden = true; $('#intro').hidden = true;
+  $('#src').hidden = false; pickTab(src);
+}
+function go(tab) {
+  if (!TABS.includes(tab)) tab = 'home';
+  demo = false; setNav(tab);
+  if (tab === 'home') {
+    hideResults(); $('#src').hidden = true; $('#try').hidden = false; $('#intro').hidden = false; setStatus(''); drawTry();
+    return;
+  }
+  $('#try').hidden = true; $('#intro').hidden = true;
+  prefs.src = tab; savePrefs();
+  if (tab === 'wk') { if (subj) showApp(); else if (token) { showSetup('wk'); loadWK(false); } else showSetup('wk'); return; }
+  if (tab === 'list' && !kanjiIn(store.get('mine', '')).length) { showSetup('list'); return; }
+  showApp();
+}
+window.addEventListener('hashchange', () => go(location.hash.slice(1)));
+document.addEventListener('click', e => {
+  if (e.target.closest('[data-tokhelp]')) setTimeout(() => { $('#tokHelp').open = true; $('#tokHelp').scrollIntoView({ block: 'center' }); }, 0);
+});
 
 /* ---------- start ---------- */
-pickTab(prefs.src);
 if (!WORDS.length) setStatus('The word list (words.js) didn’t load. Keep it in the same folder as this page.', true);
-else if (prefs.src === 'wk') { if (token) loadWK(false); }
-else if (prefs.src === 'list' && !kanjiIn(store.get('mine', '')).length) pickTab('list');
-else showApp();
+const startTab = location.hash.slice(1) || (firstVisit ? 'home' : prefs.src);
+if (location.hash.slice(1) === startTab) go(startTab); else location.hash = startTab;
 }
 </script>
 <script src="export.js"></script>
