@@ -105,6 +105,19 @@ ul.words{list-style:none;margin:0;padding:0}
 .showmore{margin:14px 0 0;border:1px dashed var(--rule);background:transparent;border-radius:10px;min-height:44px;width:100%;cursor:pointer;color:var(--mute)}
 .empty{padding:40px 0;color:var(--mute);max-width:64ch}
 .empty h2{font:600 26px/1.2 "Zen Old Mincho",serif;color:var(--ink);margin:0 0 8px}
+.try{margin:22px 0 6px;padding:18px 18px 16px;border-radius:16px;background:var(--soft);border:1px solid var(--rule);color:var(--ink)}
+.try h3{margin:0 0 4px;font:600 20px/1.3 "Zen Old Mincho",serif}
+.try p{margin:0 0 12px;color:var(--mute);font-size:15px}
+.kpick{display:flex;flex-wrap:wrap;gap:6px}
+.kpick button{font:600 22px/1 "Zen Old Mincho",serif;width:46px;height:46px;border-radius:10px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);cursor:pointer}
+.kpick button[aria-pressed=true]{background:var(--ai);color:var(--aiInk);border-color:var(--ai)}
+.trow{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px}
+.trow .go{min-height:44px}
+#tryCount{font-size:15px}#tryCount b{font-size:20px;color:var(--ink)}
+.top .try{margin:0}
+.srcBtn{margin-top:12px;width:100%;min-height:44px;border-radius:12px;border:1px solid rgba(255,255,255,.35);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}
+.demo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 18px;padding:12px 14px;border-radius:12px;background:var(--soft);border:1px solid var(--rule);font-size:15px}
+.demo .hbtn{min-height:36px}
 .how{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:24px}
 .how div{border-top:2px solid var(--ink);padding-top:10px}
 .how b{display:block;color:var(--ink);margin-bottom:4px}
@@ -257,6 +270,12 @@ footer p{margin:4px 0;max-width:80ch}
   <div class="empty" id="intro">
     <h2>Find the words hiding in the kanji you know</h2>
     <p>Kanji courses teach each character with a handful of example words. Once you know a few dozen kanji, there are hundreds of everyday words you can already read that nobody has shown you. This finds them.</p>
+    <div class="try" id="try">
+      <h3>Try it with 日, 月 and 人</h3>
+      <p>Tap kanji to add or remove them and watch the count change. No account needed.</p>
+      <div class="kpick" id="kpick"></div>
+      <div class="trow"><button type="button" class="go" id="tryGo">Show these words</button><span id="tryCount"></span></div>
+    </div>
     <div class="how">
       <div><b>1 · Your kanji</b>From your WaniKani account, a JLPT level, a school grade, or a list you paste in.</div>
       <div><b>2 · The dictionary</b>Checks about 31,000 words from JMdict, the open Japanese–English dictionary.</div>
@@ -422,6 +441,13 @@ async function loadWK(force) {
 function source() {
   const kjLink = c => 'https://jisho.org/search/' + encodeURIComponent(c + ' #kanji');
   const kjMean = c => (KJ[c] || [''])[0];
+  if (demo) {
+    const learned = new Set(tryOn);
+    return { learned, exclude: new Set(),
+      group: () => 1, label: () => 'Words from ' + [...learned].join(' '), seal: () => '試',
+      mean: kjMean, tag: c => KJ[c] && KJ[c][1] ? 'JLPT N' + KJ[c][1] : '', link: kjLink,
+      summary: `<span class="seal">試</span><span>Demo · ${[...learned].join(' ')}</span>` };
+  }
   if (prefs.src === 'wk') {
     const info = new Map(subj.kanji.map(([id, ch, lv, m]) => [ch, { id, lv, m }]));
     const byId = new Map(subj.kanji.map(([id, ch]) => [id, ch]));
@@ -468,14 +494,18 @@ function compute() {
 }
 
 function showApp() {
-  if (prefs.src === 'wk' && !subj) return;
-  $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false;
-  $('#modeWrap').hidden = $('#refresh').hidden = prefs.src !== 'wk';
+  if (!demo && prefs.src === 'wk' && !subj) return;
+  $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false; $('#try').hidden = true; $('#srcBtn')?.remove();
+  $('#modeWrap').hidden = $('#refresh').hidden = demo || prefs.src !== 'wk';
   shown = {}; openIdx = null;
   calc = compute();
   const me = $('#me'); me.hidden = false;
-  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">Change kanji source</button>' + (prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
-  $('#change').onclick = () => { $('#src').hidden = false; pickTab(prefs.src); $('#src').scrollIntoView({ block: 'nearest' }); };
+  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + (demo ? 'Use my own kanji' : 'Change kanji source') + '</button>' + (!demo && prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
+  $('#change').onclick = () => { if (demo) { demo = false; } $('#src').hidden = false; pickTab(prefs.src); $('#src').scrollIntoView({ block: 'nearest' }); };
+  if (demo) {
+    $('#me').insertAdjacentHTML('beforeend', '<button type="button" class="hbtn" id="moreKanji">Pick other kanji</button>');
+    $('#moreKanji').onclick = () => { demo = false; $('#tools').hidden = true; $('#list').innerHTML = ''; $('#me').hidden = true; $('#src').hidden = false; $('#intro').hidden = false; $('#try').hidden = false; $('#count').hidden = true; $('#tip').hidden = true; $('#try').scrollIntoView({ block: 'center' }); };
+  }
   if ($('#logout')) $('#logout').onclick = () => { store.del('token'); store.del('subjects'); token = ''; subj = null; prefs.src = 'wk'; savePrefs(); location.reload(); };
   const tip = $('#tip');
   tip.hidden = !DONATE_URL;
@@ -522,7 +552,7 @@ function render() {
   const list = filtered(), total = calc.out.length;
   result = list;
   $('#count').hidden = false;
-  $('#count').innerHTML = `<b>${list.length.toLocaleString()}</b><span>${prefs.src === 'wk' ? 'extra ' : ''}words you can read${list.length !== total ? `<br>(${total.toLocaleString()} before filters)` : ''}</span>`;
+  $('#count').innerHTML = `<b>${list.length.toLocaleString()}</b><span>${!demo && prefs.src === 'wk' ? 'extra ' : ''}words you can read${list.length !== total ? `<br>(${total.toLocaleString()} before filters)` : ''}</span>`;
   const el = $('#list');
   if (!list.length) {
     const why = !calc.learned.size
@@ -591,6 +621,7 @@ window.Yomeru = {
   words: () => result,
   calc: () => calc,
   sourceLabel: () => {
+    if (demo) return 'Demo ' + [...tryOn].join('');
     if (prefs.src === 'wk') return user ? 'WaniKani level ' + user.level : 'WaniKani';
     if (prefs.src === 'jlpt') return 'JLPT N' + prefs.jlpt;
     if (prefs.src === 'grade') return prefs.grade === '8' ? 'All Joyo kanji' : 'Grade ' + prefs.grade;
@@ -598,6 +629,38 @@ window.Yomeru = {
   },
   markKnown: list => { for (const w of list) known.add(w.k + '|' + w.r); store.set('known', [...known]); shown = {}; render(); },
 };
+
+/* ---------- try-it demo (no account) ---------- */
+const TRY_KANJI = [...'日月人一二三十大小中上下本山川口目手生出入年先木水火金土子女学'];
+const tryOn = new Set(['日', '月', '人']);
+let demo = false;
+function tryCountWords() {
+  // same filters as the list, so the number matches what "Show these words" displays
+  const was = [demo, calc]; demo = true; calc = compute();
+  const n = filtered().length; [demo, calc] = was; return n;
+}
+function drawTry() {
+  $('#kpick').innerHTML = TRY_KANJI.map(c => `<button type="button" aria-pressed="${tryOn.has(c)}" title="${esc((KJ[c] || [''])[0])}">${c}</button>`).join('');
+  const n = WORDS.length ? tryCountWords() : 0;
+  $('#tryCount').innerHTML = `<b>${tryOn.size}</b> kanji → <b>${n.toLocaleString()}</b> words you could read`;
+  $('#tryGo').disabled = !tryOn.size;
+}
+$('#kpick').onclick = e => {
+  const b = e.target.closest('button'); if (!b) return;
+  const c = b.textContent; tryOn.has(c) ? tryOn.delete(c) : tryOn.add(c); drawTry();
+};
+$('#tryGo').onclick = () => { demo = true; showApp(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+drawTry();
+
+// First visit (nothing saved yet): lead with the demo, keep the sources one tap away.
+const firstVisit = !localStorage.getItem('yomeru.prefs') && !store.get('token', '') && !store.get('mine', '');
+if (firstVisit) {
+  const t = $('#try'), src = $('#src');
+  src.parentNode.insertBefore(t, src);
+  src.hidden = true;
+  t.insertAdjacentHTML('afterend', '<button type="button" class="srcBtn" id="srcBtn">Use my WaniKani, a JLPT level or my own list</button>');
+  $('#srcBtn').onclick = () => { $('#srcBtn').remove(); src.hidden = false; };
+}
 
 /* ---------- start ---------- */
 pickTab(prefs.src);
