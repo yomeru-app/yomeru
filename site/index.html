@@ -14,12 +14,12 @@
 VOICE: a calm study notebook, quick to scan on a phone between reviews.
 IDEA: a ruled vocabulary notebook, each new level a fresh page stamped with a seal.
 PICTURE: the word list itself, large mincho headwords, the big count of words you can read.
-COLOUR and TYPE: white paper, sumi ink, ai-indigo band, one vermilion seal; Zen Old Mincho for words, Zen Kaku Gothic for UI.
+COLOUR and TYPE: warm washi paper, sumi ink, ai-indigo band, one vermilion seal; Zen Old Mincho for words, Zen Kaku Gothic for UI.
 LAYOUT: indigo band with title, kanji source and count; sticky filter row; ruled list grouped by level.
 */
 :root{color-scheme:light dark;
---bg:light-dark(#ffffff,#111419);--ink:light-dark(#17191e,#e9e7e2);--mute:light-dark(#5e636d,#9aa0aa);
---rule:light-dark(#e3e5ea,#252a33);--soft:light-dark(#f3f5f8,#181c23);
+--bg:light-dark(#fbf8f2,#121418);--ink:light-dark(#1d1b18,#ebe7df);--mute:light-dark(#6a655c,#a19c92);
+--rule:light-dark(#e7e0d3,#2a2f38);--soft:light-dark(#f3eee3,#1a1e25);--card:light-dark(#fffdf8,#171a20);
 --ai:light-dark(#1f3b5c,#1a2d45);--aiInk:#f2f4f7;--shu:#d6402a;--ok:light-dark(#2f6b4f,#3f8a66)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
@@ -151,6 +151,63 @@ footer p{margin:4px 0;max-width:80ch}
 @media(max-width:760px){.top{grid-template-columns:minmax(0,1fr)}.how{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:560px){.wbtn{grid-template-columns:minmax(0,1fr) auto;gap:2px 12px}.wbtn .g{grid-column:1/-1;grid-row:2}.k{font-size:25px}.seg button{padding:0 10px}.lvl h2{font-size:20px}}
 @media(prefers-reduced-motion:reduce){.bar i{transition:none}}
+
+/* ---- refresh: paper & ink ---- */
+header{background:radial-gradient(120% 140% at 85% 0%,#2b4d74 0%,var(--ai) 55%,#162c46 100%);overflow:hidden}
+header::after{content:"読";position:absolute;right:-.08em;bottom:-.32em;font:600 min(46vw,420px)/1 "Zen Old Mincho",serif;color:rgba(255,255,255,.045);pointer-events:none}
+header .wrap{position:relative;z-index:1}
+.src{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.18);border-radius:16px;padding:16px 18px 18px;backdrop-filter:blur(2px)}
+.go,.xbtn,.more,.seg,.tools input[type=search],.tools select,.hbtn,.pane input[type=password],.pane select,.pane textarea{border-radius:12px}
+.go{box-shadow:0 2px 0 rgba(0,0,0,.18);transition:filter .15s,transform .05s}.go:active{transform:translateY(1px)}
+.tools{background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:saturate(1.2) blur(8px)}
+.tools input[type=search],.tools select{background:var(--card)}
+.seg{background:var(--card)}
+.lvl{margin:0 0 36px}
+.lvl h2{border-bottom:0;padding-bottom:12px;margin-bottom:4px;background:linear-gradient(var(--ink),var(--ink)) left bottom/100% 2px no-repeat}
+ul.words{background:var(--card);border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+.w:last-child{border-bottom:0}
+.wbtn{padding:14px 16px;transition:background .12s}
+.k{font-size:30px}
+.det{padding:4px 16px 18px;background:var(--soft)}
+.w.open .wbtn{background:var(--soft)}
+.kc{background:var(--card)}
+.acts a,.acts button{background:var(--card);border-radius:10px}
+.showmore{border-radius:14px;background:var(--card)}
+.try{background:var(--card);box-shadow:0 1px 0 var(--rule),0 12px 30px -18px rgba(30,40,60,.35)}
+.kpick button{background:var(--soft);transition:transform .08s,background .12s}
+.kpick button:hover{transform:translateY(-1px)}
+.empty h2{font-size:28px}
+.how div{border-top-color:var(--shu)}
+.how b{font:600 18px/1.3 "Zen Old Mincho",serif}
+#exportDlg{background:var(--bg)}
+.xfmts label{background:var(--card)}
+footer{background:var(--soft)}
+body.first .top{align-items:center}
+@media(prefers-color-scheme:dark){.kpick button[aria-pressed=true]{background:#2f5d8f;border-color:#4a7ab0}header{background:radial-gradient(120% 140% at 85% 0%,#22395a 0%,#16263b 60%,#0f1a29 100%)}}
+
+/* ---- compact header on phones once the word list is showing ---- */
+@media(max-width:760px){
+  body.app header{padding:14px 0 16px}
+  body.app h1{font-size:30px;margin:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+  body.app h1 small{display:none}
+  body.app h1{padding-right:110px}
+  body.app .lede,body.app .tip{display:none}
+  body.app .top{gap:10px}
+  body.app .me{margin-top:10px;gap:8px;font-size:14px}
+  body.app .me .seal{min-width:36px;height:36px;font-size:13px}
+  body.app .hbtn{min-height:36px;padding:6px 10px;font-size:14px}
+  body.app .count{gap:8px}
+  body.app .count b{font-size:40px}
+  body.app .count span{font-size:14px}
+  body.app .count span br{display:none}
+  body.app header::after{font-size:180px}
+  .tools .wrap{gap:8px;padding-top:10px;padding-bottom:10px}
+  .tools input[type=search]{order:-1;flex:1 1 100%}
+  .seg{flex:1 1 100%;display:flex}.seg button{flex:1;padding:0 8px;font-size:14.5px}
+  .tools #pos{flex:1 1 0;min-width:0}
+  .wbtn{grid-template-columns:minmax(5.5em,auto) minmax(0,1fr) auto;gap:4px 12px;padding:12px 12px}
+  .k{font-size:26px}
+}
 </style>
 </head>
 <body>
@@ -495,16 +552,17 @@ function compute() {
 
 function showApp() {
   if (!demo && prefs.src === 'wk' && !subj) return;
+  document.body.classList.add('app');
   $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false; $('#try').hidden = true; $('#srcBtn')?.remove();
   $('#modeWrap').hidden = $('#refresh').hidden = demo || prefs.src !== 'wk';
   shown = {}; openIdx = null;
   calc = compute();
   const me = $('#me'); me.hidden = false;
   me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + (demo ? 'Use my own kanji' : 'Change kanji source') + '</button>' + (!demo && prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
-  $('#change').onclick = () => { if (demo) { demo = false; } $('#src').hidden = false; pickTab(prefs.src); $('#src').scrollIntoView({ block: 'nearest' }); };
+  $('#change').onclick = () => { if (demo) { demo = false; } document.body.classList.remove('app'); $('#src').hidden = false; pickTab(prefs.src); $('#src').scrollIntoView({ block: 'nearest' }); };
   if (demo) {
     $('#me').insertAdjacentHTML('beforeend', '<button type="button" class="hbtn" id="moreKanji">Pick other kanji</button>');
-    $('#moreKanji').onclick = () => { demo = false; $('#tools').hidden = true; $('#list').innerHTML = ''; $('#me').hidden = true; $('#src').hidden = false; $('#intro').hidden = false; $('#try').hidden = false; $('#count').hidden = true; $('#tip').hidden = true; $('#try').scrollIntoView({ block: 'center' }); };
+    $('#moreKanji').onclick = () => { demo = false; document.body.classList.remove('app'); $('#tools').hidden = true; $('#list').innerHTML = ''; $('#me').hidden = true; $('#src').hidden = false; $('#intro').hidden = false; $('#try').hidden = false; $('#count').hidden = true; $('#tip').hidden = true; $('#try').scrollIntoView({ block: 'center' }); };
   }
   if ($('#logout')) $('#logout').onclick = () => { store.del('token'); store.del('subjects'); token = ''; subj = null; prefs.src = 'wk'; savePrefs(); location.reload(); };
   const tip = $('#tip');
@@ -552,7 +610,7 @@ function render() {
   const list = filtered(), total = calc.out.length;
   result = list;
   $('#count').hidden = false;
-  $('#count').innerHTML = `<b>${list.length.toLocaleString()}</b><span>${!demo && prefs.src === 'wk' ? 'extra ' : ''}words you can read${list.length !== total ? `<br>(${total.toLocaleString()} before filters)` : ''}</span>`;
+  $('#count').innerHTML = `<b>${list.length.toLocaleString()}</b><span>${!demo && prefs.src === 'wk' ? 'extra ' : ''}words you can read${list.length !== total ? ` <br>(${total.toLocaleString()} before filters)` : ''}</span>`;
   const el = $('#list');
   if (!list.length) {
     const why = !calc.learned.size
@@ -655,6 +713,7 @@ drawTry();
 // First visit (nothing saved yet): lead with the demo, keep the sources one tap away.
 const firstVisit = !localStorage.getItem('yomeru.prefs') && !store.get('token', '') && !store.get('mine', '');
 if (firstVisit) {
+  document.body.classList.add('first');
   const t = $('#try'), src = $('#src');
   src.parentNode.insertBefore(t, src);
   src.hidden = true;
