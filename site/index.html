@@ -6,6 +6,18 @@
 <title>Yomeru · words you can already read</title>
 <meta name="generator" content="Yomeru — auto-deployed from GitHub">
 <meta name="description" content="Find Japanese vocabulary made only of the kanji you know, from WaniKani, JLPT level, school grade or your own list.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Yomeru">
+<meta property="og:url" content="https://yomeru-vocab.pages.dev/">
+<meta property="og:title" content="Yomeru · words you can already read">
+<meta property="og:description" content="Japanese vocab made only from the kanji you know. WaniKani, JLPT, school grade or your own list. Free, with Anki export.">
+<meta property="og:image" content="https://yomeru-vocab.pages.dev/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="読める Yomeru: words you can already read, with colourful kanji tiles and Mt. Fuji">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#1f3b5c">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23d6402a'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-size='40' font-weight='700' fill='white' font-family='serif'%3E%E8%AA%AD%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Zen+Old+Mincho:wght@600&display=swap" rel="stylesheet">
@@ -348,6 +360,12 @@ button.kchip{cursor:pointer}
 .price{font-size:13.5px;color:var(--mute);padding-top:8px}
 .tfoot .go{min-height:40px;margin-top:8px;background:var(--t);text-decoration:none;display:inline-flex;align-items:center;padding:0 16px;flex:none}
 #page .small{font-size:13px}
+
+/* ---- new since last visit ---- */
+.newpill{display:inline-block;font:800 10.5px/1 system-ui,sans-serif;letter-spacing:.06em;color:#fff;background:var(--matcha);padding:4px 6px;border-radius:6px;margin-right:6px;vertical-align:middle}
+.newbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--matcha) 12%,var(--card));border:1px solid color-mix(in srgb,var(--matcha) 35%,transparent);font-size:15px}
+.newbar button{min-height:36px;padding:4px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+.newbar button[aria-pressed=true]{background:var(--matcha);color:#fff;border-color:var(--matcha)}
 </style>
 </head>
 <body>
@@ -460,7 +478,7 @@ button.kchip{cursor:pointer}
     </div>
     <input type="search" id="q" placeholder="Search kanji, reading or meaning">
     <select id="pos" aria-label="Word type">
-      <option value="">All whole words</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option value="suffix">suffix (word endings)</option><option value="prefix">prefix (word beginnings)</option>
+      <option value="">All whole words</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option value="counter">counter (after numbers)</option><option value="suffix">suffix (word endings)</option><option value="prefix">prefix (word beginnings)</option>
     </select>
     <button type="button" class="more" id="practiceBtn" aria-pressed="false" title="Hide readings and meanings; tap a word to reveal it">Practice</button>
     <button type="button" class="more" id="moreBtn" aria-expanded="false">Options</button>
@@ -733,7 +751,7 @@ function showApp() {
   $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false; $('#try').hidden = true;
   $('#modeWrap').hidden = $('#refresh').hidden = demo || prefs.src !== 'wk';
   shown = {}; openIdx = null;
-  calc = compute();
+  calc = compute(); updateNew();
   const me = $('#me'); me.hidden = false;
   const changeLabel = demo ? 'Pick other kanji' : { wk: 'Token', jlpt: 'Change level', grade: 'Change grade', list: 'Edit my list' }[prefs.src];
   me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + changeLabel + '</button>' + (!demo && prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
@@ -750,6 +768,33 @@ function showApp() {
 }
 
 /* ---------- list ---------- */
+// word parts that only make sense attached to something else; hidden unless picked in the word-type menu
+const PARTS = new Set(['prefix', 'suffix', 'counter']);
+
+/* ---------- new since last visit ---------- */
+// For each kanji source we keep two snapshots of which words were readable: the previous one and the current one.
+// Words in the current snapshot but not the previous are "new". They stay marked until the set changes again.
+let newSet = new Set(), onlyNew = false;
+const b64 = u => { let s = ''; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); };
+const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
+function bitsOf(list) { const u = new Uint8Array(Math.ceil(WORDS.length / 8)); for (const w of list) u[w.i >> 3] |= 1 << (w.i & 7); return u; }
+function updateNew() {
+  newSet = new Set();
+  if (demo || !calc) { onlyNew = false; return; }
+  const key = 'seen.' + prefs.src, cur = bitsOf(calc.out), curT = b64(cur);
+  let st = null; try { st = JSON.parse(store.get(key, 'null')); } catch {}
+  if (!st || st.n !== WORDS.length) { store.set(key, JSON.stringify({ n: WORDS.length, prev: curT, cur: curT, at: Date.now() })); return; }
+  if (st.cur !== curT) { st.prev = st.cur; st.cur = curT; st.at = Date.now(); store.set(key, JSON.stringify(st)); }
+  const prev = unb64(st.prev);
+  for (const w of calc.out) if (!(prev[w.i >> 3] & (1 << (w.i & 7)))) newSet.add(w.i);
+  if (!newSet.size) onlyNew = false;
+}
+function clearNew() {
+  const key = 'seen.' + prefs.src; let st = null; try { st = JSON.parse(store.get(key, 'null')); } catch {}
+  if (st) { st.prev = st.cur; store.set(key, JSON.stringify(st)); }
+  newSet = new Set(); onlyNew = false; shown = {}; render();
+}
+
 function filtered() {
   const q = $('#q').value.trim().toLowerCase();
   const pos = $('#pos').value, min = +prefs.freq;
@@ -757,7 +802,8 @@ function filtered() {
     (min === 0 || w.s >= min || (min === 35 && w.common && w.s >= 30)) &&
     (prefs.uk || !w.uk) &&
     (!prefs.hideKnown || !known.has(w.k + '|' + w.r)) &&
-    (pos ? w.p === pos : w.p !== 'prefix' && w.p !== 'suffix') &&
+    (pos ? w.p === pos : !PARTS.has(w.p)) &&
+    (!onlyNew || newSet.has(w.i)) &&
     (!q || w.k.includes(q) || w.r.includes(q) || w.g.toLowerCase().includes(q)));
 }
 
@@ -769,7 +815,7 @@ function item(w) {
     <button class="wbtn" type="button" aria-expanded="${open}">
       <span><span class="k" lang="ja">${esc(w.k)}</span><span class="r" lang="ja">${esc(w.r)}</span></span>
       <span class="g">${esc(w.g.split(' | ')[0])}</span>
-      <span class="meta">${dots(w.s)}${w.p ? `<span class="pos">${esc(w.p)}</span>` : ''}</span>
+      <span class="meta">${newSet.has(w.i) ? '<span class="newpill">NEW</span>' : ''}${dots(w.s)}${w.p ? `<span class="pos">${esc(w.p)}</span>` : ''}</span>
     </button>
     <div class="det">${open ? detail(w) : ''}</div></li>`;
 }
@@ -832,6 +878,8 @@ function setMine(t) { store.set('mine', t); $('#mine').value = t; $('#mine').dis
 render = function () {
   const y = window.scrollY;
   _render();
+  const nv = onlyNew ? result.length : result.filter(w => newSet.has(w.i)).length;
+  if (nv && $('#list').querySelector('.words, .empty')) $('#list').insertAdjacentHTML('afterbegin', `<div class="newbar"><span class="newpill">NEW</span><span><b>${nv.toLocaleString()}</b> word${nv > 1 ? 's' : ''} unlocked since your last visit.</span><button type="button" data-onlynew aria-pressed="${onlyNew}">${onlyNew ? 'Show all words' : 'Show only new'}</button><button type="button" data-clearnew>Mark as seen</button></div>`);
   if ($('#list').querySelector('.words, .empty')) $('#list').insertAdjacentHTML('afterbegin', kanjiBar());
   document.body.classList.toggle('practice', !!prefs.practice);
   if (prefs.practice && calc && $('#list').querySelector('.words'))
@@ -852,6 +900,8 @@ $('#list').addEventListener('click', e => {
   if (e.target.closest('[data-kview]')) { page = 'kanji'; showKanji(); window.scrollTo(0, 0); return; }
   const rm = e.target.closest('[data-rmk]');
   if (rm) { const c = rm.dataset.rmk; setMine([...store.get('mine', '')].filter(x => x !== c).join('')); const y = window.scrollY; showApp(); window.scrollTo(0, y); return; }
+  if (e.target.closest('[data-onlynew]')) { onlyNew = !onlyNew; shown = {}; render(); return; }
+  if (e.target.closest('[data-clearnew]')) { clearNew(); return; }
   if (e.target.closest('[data-hideall]')) { document.querySelectorAll('.w.shown').forEach(li => li.classList.remove('shown')); return; }
   if (e.target.closest('[data-practiceoff]')) { setPractice(false); return; }
   const more = e.target.closest('[data-more]');
@@ -988,7 +1038,7 @@ document.addEventListener('click', e => {
 });
 
 /* ---------- shared: which words count as "everyday" for guides and kanji counts ---------- */
-const everyday = w => w.ks.length && !w.uk && w.p !== 'prefix' && w.p !== 'suffix' && (w.s >= 35 || (w.common && w.s >= 30));
+const everyday = w => w.ks.length && !w.uk && !PARTS.has(w.p) && (w.s >= 35 || (w.common && w.s >= 30));
 let KIDX = null; // kanji -> indices of everyday words that use it
 function kanjiIndex() {
   if (KIDX) return KIDX;
