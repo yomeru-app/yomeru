@@ -223,9 +223,9 @@ body.home #intro{padding-top:8px}
   body.app header::after{font-size:180px}
   .tools .wrap{gap:8px;padding-top:10px;padding-bottom:10px}
   .tools input[type=search]{order:-4;flex:1 1 100%}
-  .tools .seg{order:-3;flex:1 1 0;display:flex}.seg button{flex:1;padding:0 8px;font-size:14.5px}
+  .tools .seg{order:-3;flex:1 1 55%;display:flex}.seg button{flex:1;padding:0 8px;font-size:14.5px}
   .tools #practiceBtn{order:-2;flex:none}
-  .tools #pos{flex:1 1 0;min-width:0}
+  .tools #pos{flex:1 1 40%;min-width:0;max-width:none}
   .wbtn{grid-template-columns:minmax(5.5em,auto) minmax(0,1fr) auto;gap:4px 12px;padding:12px 12px}
   .k{font-size:26px}
 }
@@ -303,6 +303,20 @@ body.practice .w:not(.shown):not(.open) .meta{visibility:hidden}
 .newsteps li{background:var(--soft);border-radius:12px;padding:12px 14px}
 .newsteps b{display:block;color:var(--ink)}
 @media(max-width:760px){.kgrid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}.ktile b{font-size:28px}.newsteps{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- kanji strip above the word list ---- */
+.tools #pos{max-width:13.5em}
+.kbar{background:var(--card);border:1px solid var(--rule);border-radius:16px;margin:0 0 18px;padding:2px 16px}
+.kbar summary{cursor:pointer;min-height:46px;display:flex;align-items:baseline;flex-wrap:wrap;gap:2px 10px;font-weight:700;padding:10px 0}
+.kbar summary small{font-weight:400;color:var(--mute)}
+.kchips{display:flex;flex-wrap:wrap;gap:6px;padding:4px 0 12px}
+.kchip{display:inline-flex;align-items:center;gap:2px;font:600 20px/1 "Zen Old Mincho",serif;padding:6px 8px;border-radius:9px;background:var(--soft);border:1px solid var(--rule);color:var(--ink);text-decoration:none}
+.kchip button{all:unset;cursor:pointer;font:600 13px/1 system-ui,sans-serif;color:var(--mute);width:22px;height:22px;display:grid;place-items:center;border-radius:6px;margin-left:2px}
+.kchip button:hover{background:var(--shu);color:#fff}
+.kadd{display:flex;gap:8px;flex-wrap:wrap;padding:0 0 14px}
+.kadd input{flex:1 1 220px;min-height:42px;border-radius:12px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);padding:0 12px;font:inherit}
+.kadd .go{min-height:42px}
+.kbar .kmore{font-size:14px;color:var(--mute);padding:0 0 12px}
 </style>
 </head>
 <body>
@@ -415,7 +429,7 @@ body.practice .w:not(.shown):not(.open) .meta{visibility:hidden}
     </div>
     <input type="search" id="q" placeholder="Search kanji, reading or meaning">
     <select id="pos" aria-label="Word type">
-      <option value="">All word types (no prefixes)</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option>suffix</option><option>prefix</option>
+      <option value="">All word types</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option>suffix</option><option>prefix</option>
     </select>
     <button type="button" class="more" id="practiceBtn" aria-pressed="false" title="Hide readings and meanings; tap a word to reveal it">Practice</button>
     <button type="button" class="more" id="moreBtn" aria-expanded="false">Options</button>
@@ -772,13 +786,38 @@ render = function () {
 }
 
 const _render = render;
+function kanjiBar() {
+  if (demo || !calc) return '';
+  const ks = [...calc.learned], isList = prefs.src === 'list';
+  const MAX = 300, showAll = isList || ks.length <= MAX;
+  const chips = (showAll ? ks : ks.slice(0, MAX)).map(c => isList
+    ? `<span class="kchip" title="${esc(kMean(c))}" lang="ja">${esc(c)}<button type="button" data-rmk="${esc(c)}" aria-label="Remove ${esc(c)}">✕</button></span>`
+    : `<a class="kchip" href="#kanji" title="${esc(kMean(c))}" lang="ja">${esc(c)}</a>`).join('');
+  return `<details class="kbar" ${isList || prefs.kbarOpen ? 'open' : ''}><summary>Your ${ks.length.toLocaleString()} kanji <small>${isList ? 'tap ✕ to remove, or add more below' : 'from this source · <a href="#kanji">see them all in My kanji</a>'}</small></summary>
+    <div class="kchips">${chips}</div>${showAll ? '' : `<div class="kmore">…and ${(ks.length - MAX).toLocaleString()} more in <a href="#kanji">My kanji</a>.</div>`}
+    ${isList ? '<form class="kadd" id="kadd"><input id="kaddIn" lang="ja" placeholder="Add kanji, or paste any Japanese text" autocomplete="off"><button class="go" type="submit">Add</button></form>' : ''}</details>`;
+}
+function setMine(t) { store.set('mine', t); $('#mine').value = t; $('#mine').dispatchEvent(new Event('input')); }
 render = function () {
+  const y = window.scrollY;
   _render();
+  if ($('#list').querySelector('.words, .empty')) $('#list').insertAdjacentHTML('afterbegin', kanjiBar());
   document.body.classList.toggle('practice', !!prefs.practice);
   if (prefs.practice && calc && $('#list').querySelector('.words'))
     $('#list').insertAdjacentHTML('afterbegin', '<div class="practicebar"><b>Practice mode</b><span>Readings and meanings are hidden. Read the word, then tap it to check.</span><button type="button" data-hideall>Hide all again</button><button type="button" data-practiceoff>Turn off</button></div>');
 };
+$('#list').addEventListener('submit', e => {
+  if (e.target.id !== 'kadd') return;
+  e.preventDefault();
+  const add = kanjiIn($('#kaddIn').value).filter(c => !calc.learned.has(c));
+  if (!add.length) { $('#kaddIn').value = ''; return; }
+  setMine(store.get('mine', '') + add.join('')); showApp();
+  setTimeout(() => $('#kaddIn')?.focus(), 0);
+});
+$('#list').addEventListener('toggle', e => { if (e.target.classList?.contains('kbar') && prefs.src !== 'list') { prefs.kbarOpen = e.target.open; savePrefs(); } }, true);
 $('#list').addEventListener('click', e => {
+  const rm = e.target.closest('[data-rmk]');
+  if (rm) { const c = rm.dataset.rmk; setMine([...store.get('mine', '')].filter(x => x !== c).join('')); const y = window.scrollY; showApp(); window.scrollTo(0, y); return; }
   if (e.target.closest('[data-hideall]')) { document.querySelectorAll('.w.shown').forEach(li => li.classList.remove('shown')); return; }
   if (e.target.closest('[data-practiceoff]')) { setPractice(false); return; }
   const more = e.target.closest('[data-more]');
