@@ -430,7 +430,7 @@ button.kchip{cursor:pointer}
     </div>
     <input type="search" id="q" placeholder="Search kanji, reading or meaning">
     <select id="pos" aria-label="Word type">
-      <option value="">All word types</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option>suffix</option><option>prefix</option>
+      <option value="">All whole words</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option value="suffix">suffix (word endings)</option><option value="prefix">prefix (word beginnings)</option>
     </select>
     <button type="button" class="more" id="practiceBtn" aria-pressed="false" title="Hide readings and meanings; tap a word to reveal it">Practice</button>
     <button type="button" class="more" id="moreBtn" aria-expanded="false">Options</button>
@@ -727,7 +727,7 @@ function filtered() {
     (min === 0 || w.s >= min || (min === 35 && w.common && w.s >= 30)) &&
     (prefs.uk || !w.uk) &&
     (!prefs.hideKnown || !known.has(w.k + '|' + w.r)) &&
-    (pos ? w.p === pos : w.p !== 'prefix') &&
+    (pos ? w.p === pos : w.p !== 'prefix' && w.p !== 'suffix') &&
     (!q || w.k.includes(q) || w.r.includes(q) || w.g.toLowerCase().includes(q)));
 }
 
@@ -955,7 +955,7 @@ document.addEventListener('click', e => {
 });
 
 /* ---------- shared: which words count as "everyday" for guides and kanji counts ---------- */
-const everyday = w => w.ks.length && !w.uk && w.p !== 'prefix' && (w.s >= 35 || (w.common && w.s >= 30));
+const everyday = w => w.ks.length && !w.uk && w.p !== 'prefix' && w.p !== 'suffix' && (w.s >= 35 || (w.common && w.s >= 30));
 let KIDX = null; // kanji -> indices of everyday words that use it
 function kanjiIndex() {
   if (KIDX) return KIDX;
