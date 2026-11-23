@@ -222,8 +222,9 @@ body.home #intro{padding-top:8px}
   body.app .count span br{display:none}
   body.app header::after{font-size:180px}
   .tools .wrap{gap:8px;padding-top:10px;padding-bottom:10px}
-  .tools input[type=search]{order:-1;flex:1 1 100%}
-  .seg{flex:1 1 100%;display:flex}.seg button{flex:1;padding:0 8px;font-size:14.5px}
+  .tools input[type=search]{order:-4;flex:1 1 100%}
+  .tools .seg{order:-3;flex:1 1 0;display:flex}.seg button{flex:1;padding:0 8px;font-size:14.5px}
+  .tools #practiceBtn{order:-2;flex:none}
   .tools #pos{flex:1 1 0;min-width:0}
   .wbtn{grid-template-columns:minmax(5.5em,auto) minmax(0,1fr) auto;gap:4px 12px;padding:12px 12px}
   .k{font-size:26px}
@@ -268,6 +269,40 @@ footer{position:relative;background:var(--soft);padding-top:30px}
 footer::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12' viewBox='0 0 24 12'%3E%3Cpath d='M0 12a12 12 0 0 1 24 0Z' fill='%23fbf8f2'/%3E%3C/svg%3E") top/24px 12px repeat-x;transform:scaleY(-1)}
 @media(prefers-color-scheme:dark){footer::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='12' viewBox='0 0 24 12'%3E%3Cpath d='M0 12a12 12 0 0 1 24 0Z' fill='%23121418'/%3E%3C/svg%3E")}}
 
+
+/* ---- nav extras ---- */
+.navsep{flex:none;width:1px;margin:8px 6px;background:rgba(255,255,255,.25)}
+/* ---- practice mode ---- */
+#practiceBtn[aria-pressed=true]{background:var(--shu);color:#fff;border-color:var(--shu)}
+body.practice .w:not(.shown):not(.open) .r,body.practice .w:not(.shown):not(.open) .g{filter:blur(7px);user-select:none;opacity:.7}
+body.practice .w:not(.shown):not(.open) .meta{visibility:hidden}
+.practicebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--shu) 10%,var(--card));border:1px solid color-mix(in srgb,var(--shu) 30%,transparent);font-size:15px}
+.practicebar button{min-height:36px;padding:4px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
+/* ---- pages: My kanji, Guides ---- */
+#page{padding-bottom:30px}
+#page h2{font:600 26px/1.25 "Zen Old Mincho",serif;margin:8px 0 6px}
+#page .sub{color:var(--mute);margin:0 0 16px;max-width:70ch}
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;margin:10px 0 26px}
+.ktile{all:unset;box-sizing:border-box;display:grid;justify-items:center;gap:2px;padding:10px 4px 8px;border-radius:14px;color:#fff;cursor:pointer;background:var(--c,var(--ai2));transition:transform .08s,box-shadow .12s;box-shadow:0 2px 0 rgba(0,0,0,.15)}
+.ktile:hover{transform:translateY(-2px);box-shadow:0 6px 14px -6px rgba(0,0,0,.35)}
+.ktile:focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+.ktile b{font:600 34px/1.1 "Zen Old Mincho",serif}
+.ktile span{font-size:12px;opacity:.92;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ktile em{font-style:normal;font-size:11.5px;background:rgba(255,255,255,.22);border-radius:999px;padding:1px 8px;margin-top:2px}
+.kgroup h3{display:flex;align-items:center;gap:10px;font:600 19px/1.3 "Zen Old Mincho",serif;margin:0}
+.kgroup h3 .seal{background:var(--c)}
+.kgroup h3 small{font:400 14px/1 inherit;color:var(--mute);margin-left:auto}
+.c0{--c:var(--shu)}.c1{--c:var(--ai2)}.c2{--c:var(--sakura)}.c3{--c:var(--matcha)}.c4{--c:var(--fuji)}.c5{--c:var(--yama)}
+.ksort{margin:4px 0 18px}
+.guide{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:18px 20px;margin:0 0 20px;border-top:5px solid var(--c)}
+.guide .acts2{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.guide .acts2 .go{min-height:42px}
+.guide .acts2 .hbtn2{min-height:42px;padding:6px 14px;border-radius:12px;border:1px solid var(--rule);background:var(--soft);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.cum{display:block;font-size:11px;opacity:.85}
+.newsteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:10px 0 0;padding:0;list-style:none}
+.newsteps li{background:var(--soft);border-radius:12px;padding:12px 14px}
+.newsteps b{display:block;color:var(--ink)}
+@media(max-width:760px){.kgrid{grid-template-columns:repeat(auto-fill,minmax(72px,1fr))}.ktile b{font-size:28px}.newsteps{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -289,6 +324,9 @@ footer::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;bac
     <a href="#jlpt" data-go="jlpt">JLPT</a>
     <a href="#grade" data-go="grade">School grade</a>
     <a href="#list" data-go="list">My list</a>
+    <span class="navsep" aria-hidden="true"></span>
+    <a href="#kanji" data-go="kanji">My kanji</a>
+    <a href="#guides" data-go="guides">Guides</a>
   </nav>
   <div class="wrap top">
     <div>
@@ -379,6 +417,7 @@ footer::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;bac
     <select id="pos" aria-label="Word type">
       <option value="">All word types (no prefixes)</option><option>noun</option><option>verb</option><option>i-adj</option><option>na-adj</option><option>adverb</option><option>expression</option><option>counter</option><option>suffix</option><option>prefix</option>
     </select>
+    <button type="button" class="more" id="practiceBtn" aria-pressed="false" title="Hide readings and meanings; tap a word to reveal it">Practice</button>
     <button type="button" class="more" id="moreBtn" aria-expanded="false">Options</button>
     <button type="button" class="xbtn" id="exportBtn">Export ↓</button>
     <div class="opts" id="opts">
@@ -429,6 +468,7 @@ footer::before{content:"";position:absolute;left:0;right:0;top:0;height:12px;bac
       </details>
     </section>
   </div>
+  <div id="page" hidden></div>
   <div id="list"></div>
 </main>
 
@@ -642,6 +682,8 @@ function compute() {
 
 function showApp() {
   if (!demo && prefs.src === 'wk' && !subj) return;
+  if (page === 'kanji' && !demo) return showKanji();
+  $('#page').hidden = true;
   document.body.classList.add('app');
   $('#src').hidden = true; $('#intro').hidden = true; $('#tools').hidden = false; $('#try').hidden = true;
   $('#modeWrap').hidden = $('#refresh').hidden = demo || prefs.src !== 'wk';
@@ -651,6 +693,10 @@ function showApp() {
   const changeLabel = demo ? 'Pick other kanji' : { wk: 'Token', jlpt: 'Change level', grade: 'Change grade', list: 'Edit my list' }[prefs.src];
   me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + changeLabel + '</button>' + (!demo && prefs.src === 'wk' ? '<button type="button" class="hbtn" id="logout">Forget token</button>' : '');
   $('#change').onclick = () => { if (demo) go('home'); else showSetup(prefs.src); };
+  if (demo) {
+    me.insertAdjacentHTML('beforeend', '<button type="button" class="hbtn" id="saveDemo">Save as my list</button>');
+    $('#saveDemo').onclick = () => { const t = [...tryOn].join(''); store.set('mine', t); $('#mine').value = t; $('#mine').dispatchEvent(new Event('input')); location.hash = 'list'; };
+  }
   if ($('#logout')) $('#logout').onclick = () => { store.del('token'); store.del('subjects'); token = ''; subj = null; prefs.src = 'wk'; savePrefs(); location.reload(); };
   const tip = $('#tip');
   tip.hidden = !DONATE_URL;
@@ -693,7 +739,8 @@ function detail(w) {
 }
 
 const PAGE = 60;
-function render() {
+let render;
+render = function () {
   const list = filtered(), total = calc.out.length;
   result = list;
   $('#count').hidden = false;
@@ -706,7 +753,8 @@ function render() {
     el.innerHTML = `<div class="empty"><h2>No words yet</h2><p>${why}</p></div>`;
     return;
   }
-  const grouped = prefs.view === 'level' && prefs.src !== 'list';
+
+  const grouped = prefs.view === 'level' && (demo || prefs.src !== 'list');
   if (!grouped) {
     const n = shown.all || PAGE;
     el.innerHTML = `<section class="lvl"><ul class="words">${list.slice(0, n).map(item).join('')}</ul>${n < list.length ? `<button class="showmore" data-more="all">Show more (${(list.length - n).toLocaleString()} left)</button>` : ''}</section>`;
@@ -723,7 +771,16 @@ function render() {
   }).join('');
 }
 
+const _render = render;
+render = function () {
+  _render();
+  document.body.classList.toggle('practice', !!prefs.practice);
+  if (prefs.practice && calc && $('#list').querySelector('.words'))
+    $('#list').insertAdjacentHTML('afterbegin', '<div class="practicebar"><b>Practice mode</b><span>Readings and meanings are hidden. Read the word, then tap it to check.</span><button type="button" data-hideall>Hide all again</button><button type="button" data-practiceoff>Turn off</button></div>');
+};
 $('#list').addEventListener('click', e => {
+  if (e.target.closest('[data-hideall]')) { document.querySelectorAll('.w.shown').forEach(li => li.classList.remove('shown')); return; }
+  if (e.target.closest('[data-practiceoff]')) { setPractice(false); return; }
   const more = e.target.closest('[data-more]');
   if (more) { const k = more.dataset.more; shown[k] = (shown[k] || (k === 'all' ? PAGE : 20)) + (k === 'all' ? 200 : 60); render(); return; }
   const mk = e.target.closest('[data-known]');
@@ -736,6 +793,7 @@ $('#list').addEventListener('click', e => {
     return;
   }
   const btn = e.target.closest('.wbtn');
+  if (btn && prefs.practice && !btn.closest('.w').classList.contains('shown')) { btn.closest('.w').classList.add('shown'); return; }
   if (btn) {
     const li = btn.closest('.w'), i = +li.dataset.i;
     const prev = document.querySelector('.w.open');
@@ -753,6 +811,13 @@ document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => {
 });
 let qt; $('#q').oninput = () => { clearTimeout(qt); qt = setTimeout(() => { shown = {}; render(); }, 150); };
 $('#pos').onchange = () => { shown = {}; render(); };
+function setPractice(on) {
+  prefs.practice = on; savePrefs();
+  $('#practiceBtn').setAttribute('aria-pressed', on);
+  render();
+}
+$('#practiceBtn').setAttribute('aria-pressed', !!prefs.practice);
+$('#practiceBtn').onclick = () => setPractice(!prefs.practice);
 $('#moreBtn').onclick = () => { const o = $('#opts').classList.toggle('on'); $('#moreBtn').setAttribute('aria-expanded', o); };
 $('#mode').value = prefs.mode; $('#freq').value = prefs.freq; $('#uk').checked = prefs.uk; $('#hideKnown').checked = prefs.hideKnown;
 document.querySelectorAll('[data-view]').forEach(x => x.setAttribute('aria-pressed', x.dataset.view === prefs.view));
@@ -800,10 +865,12 @@ drawTry();
 /* ---------- tabs: Home (demo + how-to) and one tab per kanji source ---------- */
 // The demo lives in the header on Home, where the source form or word count go on the other tabs.
 $('#src').parentNode.insertBefore($('#try'), $('#src'));
-const TABS = ['home', 'wk', 'jlpt', 'grade', 'list'];
+const TABS = ['home', 'wk', 'jlpt', 'grade', 'list', 'kanji', 'guides'];
+const SOURCES = ['wk', 'jlpt', 'grade', 'list'];
+let page = 'words';
 const firstVisit = !localStorage.getItem('yomeru.prefs') && !store.get('token', '') && !store.get('mine', '');
 function hideResults() {
-  document.body.classList.remove('app');
+  document.body.classList.remove('app'); $('#page').hidden = true;
   $('#tools').hidden = true; $('#list').innerHTML = ''; $('#me').hidden = true; $('#count').hidden = true; $('#tip').hidden = true;
 }
 function setNav(tab) {
@@ -816,10 +883,21 @@ function showSetup(src) {
 }
 function go(tab) {
   if (!TABS.includes(tab)) tab = 'home';
-  demo = false; setNav(tab);
+  demo = false; setNav(tab); $('#page').hidden = true;
+  page = tab === 'kanji' ? 'kanji' : 'words';
   if (tab === 'home') {
     hideResults(); $('#src').hidden = true; $('#try').hidden = false; $('#intro').hidden = false; setStatus(''); drawTry();
     return;
+  }
+  if (tab === 'guides') {
+    hideResults(); $('#src').hidden = true; $('#try').hidden = true; $('#intro').hidden = true; showGuides(); window.scrollTo(0, 0); return;
+  }
+  if (tab === 'kanji') {
+    $('#try').hidden = true; $('#intro').hidden = true;
+    if (!SOURCES.includes(prefs.src)) prefs.src = 'jlpt';
+    if (prefs.src === 'wk' && !subj) { if (token) { showSetup('wk'); loadWK(false); } else showSetup('wk'); return; }
+    if (prefs.src === 'list' && !kanjiIn(store.get('mine', '')).length) { showSetup('list'); return; }
+    showKanji(); return;
   }
   $('#try').hidden = true; $('#intro').hidden = true;
   prefs.src = tab; savePrefs();
@@ -831,6 +909,120 @@ window.addEventListener('hashchange', () => go(location.hash.slice(1)));
 document.addEventListener('click', e => {
   if (e.target.closest('[data-tokhelp]')) setTimeout(() => { $('#tokHelp').open = true; $('#tokHelp').scrollIntoView({ block: 'center' }); }, 0);
 });
+
+/* ---------- shared: which words count as "everyday" for guides and kanji counts ---------- */
+const everyday = w => w.ks.length && !w.uk && w.p !== 'prefix' && (w.s >= 35 || (w.common && w.s >= 30));
+let KIDX = null; // kanji -> indices of everyday words that use it
+function kanjiIndex() {
+  if (KIDX) return KIDX;
+  KIDX = new Map();
+  WORDS.forEach((w, i) => { if (!everyday(w)) return; for (const c of new Set(w.ks)) { if (!KIDX.has(c)) KIDX.set(c, []); KIDX.get(c).push(i); } });
+  return KIDX;
+}
+// Greedy: the next n kanji that each unlock the most new everyday words, given the kanji already known.
+function nextKanji(base, n) {
+  const idx = kanjiIndex(), missing = new Map(), credit = new Map(), out = [];
+  WORDS.forEach((w, i) => {
+    if (!everyday(w)) return;
+    const m = new Set([...w.ks].filter(c => !base.has(c)));
+    if (!m.size) return;
+    missing.set(i, m);
+    if (m.size === 1) { const c = [...m][0]; credit.set(c, (credit.get(c) || 0) + 1); }
+  });
+  let total = 0;
+  for (let k = 0; k < n; k++) {
+    let best = null, bg = 0;
+    for (const [c, g] of credit) if (g > bg) { best = c; bg = g; }
+    if (!best) break;
+    total += bg; out.push({ c: best, gain: bg, total });
+    credit.delete(best);
+    for (const i of idx.get(best) || []) {
+      const m = missing.get(i); if (!m || !m.has(best)) continue;
+      m.delete(best);
+      if (m.size === 1) { const c = [...m][0]; if (c !== best) credit.set(c, (credit.get(c) || 0) + 1); }
+      if (!m.size) missing.delete(i);
+    }
+  }
+  return out;
+}
+const kMean = c => (KJ[c] || [''])[0] || '';
+const tile = (c, cls, extra) => `<button type="button" class="ktile ${cls}" data-k="${esc(c)}" title="${esc(kMean(c))}"><b lang="ja">${esc(c)}</b><span>${esc(kMean(c))}</span>${extra || ''}</button>`;
+
+/* ---------- My kanji ---------- */
+function showKanji() {
+  document.body.classList.add('app');
+  $('#src').hidden = true; $('#tools').hidden = true; $('#list').innerHTML = ''; $('#tip').hidden = true;
+  calc = compute();
+  const me = $('#me'); me.hidden = false;
+  const changeLabel = { wk: 'Token', jlpt: 'Change level', grade: 'Change grade', list: 'Edit my list' }[prefs.src];
+  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + changeLabel + '</button>';
+  $('#change').onclick = () => showSetup(prefs.src);
+  const learned = [...calc.learned];
+  $('#count').hidden = false;
+  $('#count').innerHTML = `<b>${learned.length.toLocaleString()}</b><span>kanji you know</span>`;
+  // words each kanji appears in, among words you can read
+  const cnt = new Map();
+  for (const w of calc.out) if (everyday(w)) for (const c of new Set(w.ks)) cnt.set(c, (cnt.get(c) || 0) + 1);
+  const pg = $('#page'); pg.hidden = false;
+  const sortBy = prefs.ksort || 'level';
+  const head = `<h2>Your kanji</h2><p class="sub">Every kanji you know from ${esc(calc.summary.replace(/<span class="seal">.*?<\/span>/, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())}. The number is how many everyday words you can read that use it. Tap one to see those words.</p>
+    <div class="seg ksort" role="group" aria-label="Sort"><button type="button" data-ks="level" aria-pressed="${sortBy === 'level'}">By level</button><button type="button" data-ks="words" aria-pressed="${sortBy === 'words'}">Most words</button></div>`;
+  const t = c => tile(c, '', `<em>${(cnt.get(c) || 0).toLocaleString()} words</em>`);
+  let body;
+  if (!learned.length) body = '<p class="sub">No kanji yet for this source.</p>';
+  else if (sortBy === 'words') {
+    body = `<div class="kgrid">${learned.sort((a, b) => (cnt.get(b) || 0) - (cnt.get(a) || 0)).map((c, i) => t(c).replace('class="ktile ', `class="ktile c${Math.min(5, Math.floor(i / 20)) % 6} `)).join('')}</div>`;
+  } else {
+    const groups = new Map();
+    for (const c of learned) { const g = calc.group(c); if (!groups.has(g)) groups.set(g, []); groups.get(g).push(c); }
+    body = [...groups.keys()].sort((a, b) => a - b).map((g, gi) => `<section class="kgroup c${gi % 6}"><h3><span class="seal">${esc(calc.seal(g))}</span>${esc(calc.label(g))}<small>${groups.get(g).length} kanji</small></h3>
+      <div class="kgrid">${groups.get(g).map(c => t(c).replace('class="ktile ', `class="ktile c${gi % 6} `)).join('')}</div></section>`).join('');
+  }
+  pg.innerHTML = head + body;
+}
+$('#page').addEventListener('click', e => {
+  const ks = e.target.closest('[data-ks]');
+  if (ks) { prefs.ksort = ks.dataset.ks; savePrefs(); showKanji(); return; }
+  const k = e.target.closest('.ktile');
+  if (k && page === 'kanji') { $('#q').value = k.dataset.k; shown = {}; location.hash = prefs.src; window.scrollTo(0, 0); return; }
+  if (k) { window.open('https://jisho.org/search/' + encodeURIComponent(k.dataset.k + ' #kanji'), '_blank', 'noopener'); return; }
+  const a = e.target.closest('[data-guide]');
+  if (a) {
+    const list = JSON.parse(a.dataset.list);
+    if (a.dataset.guide === 'save') { const t = list.join(''); store.set('mine', t); $('#mine').value = t; $('#mine').dispatchEvent(new Event('input')); location.hash = 'list'; }
+    if (a.dataset.guide === 'try') { tryOn.clear(); list.forEach(c => tryOn.add(c)); location.hash = 'home'; }
+  }
+});
+
+/* ---------- Guides ---------- */
+let TOP50 = null;
+function showGuides() {
+  const pg = $('#page'); pg.hidden = false;
+  TOP50 ||= nextKanji(new Set(), 50);
+  const ready = SOURCES.includes(prefs.src) && (prefs.src !== 'wk' || subj) && (prefs.src !== 'list' || kanjiIn(store.get('mine', '')).length);
+  let mine = '';
+  if (ready) {
+    const src = source(); const nxt = nextKanji(src.learned, 20);
+    mine = `<section class="guide c3"><h2>Your next 20 kanji</h2>
+      <p class="sub">Based on ${esc(src.summary.replace(/<span class="seal">.*?<\/span>/, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim())}: the kanji you don't know yet that would unlock the most new everyday words, in order. The number is how many words each one adds.</p>
+      <div class="kgrid">${nxt.map((x, i) => tile(x.c, 'c' + (i < 5 ? 0 : i < 10 ? 1 : 3), `<em>+${x.gain}</em>`)).join('')}</div>
+      <div class="acts2"><button type="button" class="hbtn2" data-guide="try" data-list='${JSON.stringify(nxt.slice(0, 10).map(x => x.c))}'>Try the first 10 in the demo</button></div></section>`;
+  }
+  pg.innerHTML = `
+    <section class="guide c1"><h2>Start here if you're new</h2>
+      <p class="sub">Yomeru works with whatever kanji you already know. Pick the path that sounds like you:</p>
+      <ul class="newsteps">
+        <li><b>I use WaniKani</b>Open the <a href="#wk">WaniKani tab</a> and paste your read-only token. Your words update as you level up.</li>
+        <li><b>I'm studying for the JLPT</b>Open the <a href="#jlpt">JLPT tab</a> and choose the level you're working on.</li>
+        <li><b>I'm just starting</b>Learn the 50 kanji below first. Together they unlock about ${TOP50.length ? TOP50[TOP50.length - 1].total.toLocaleString() : 'hundreds of'} everyday words.</li>
+        <li><b>I'm reading something</b>Paste the text into <a href="#list">My list</a> to see what else its kanji let you read.</li>
+      </ul></section>
+    ${mine}
+    <section class="guide c0"><h2>The 50 kanji that unlock the most words</h2>
+      <p class="sub">Learn them in this order: each one adds the most new everyday words, given the ones before it. The small number is the running total.</p>
+      <div class="kgrid">${TOP50.map((x, i) => tile(x.c, 'c' + Math.floor(i / 10) % 6, `<em>+${x.gain}</em><small class="cum">${x.total} total</small>`)).join('')}</div>
+      <div class="acts2"><button type="button" class="go" data-guide="save" data-list='${JSON.stringify(TOP50.map(x => x.c))}'>Use these 50 as My list</button><button type="button" class="hbtn2" data-guide="try" data-list='${JSON.stringify(TOP50.slice(0, 10).map(x => x.c))}'>Try the first 10 in the demo</button></div></section>`;
+}
 
 /* ---------- start ---------- */
 if (!WORDS.length) setStatus('The word list (words.js) didn’t load. Keep it in the same folder as this page.', true);
