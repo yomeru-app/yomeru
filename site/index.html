@@ -317,6 +317,8 @@ body.practice .w:not(.shown):not(.open) .meta{visibility:hidden}
 .kadd input{flex:1 1 220px;min-height:42px;border-radius:12px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);padding:0 12px;font:inherit}
 .kadd .go{min-height:42px}
 .kbar .kmore{font-size:14px;color:var(--mute);padding:0 0 12px}
+.linkbtn{all:unset;cursor:pointer;color:var(--ink);text-decoration:underline;text-underline-offset:3px}
+button.kchip{cursor:pointer}
 </style>
 </head>
 <body>
@@ -339,7 +341,6 @@ body.practice .w:not(.shown):not(.open) .meta{visibility:hidden}
     <a href="#grade" data-go="grade">School grade</a>
     <a href="#list" data-go="list">My list</a>
     <span class="navsep" aria-hidden="true"></span>
-    <a href="#kanji" data-go="kanji">My kanji</a>
     <a href="#guides" data-go="guides">Guides</a>
   </nav>
   <div class="wrap top">
@@ -792,9 +793,9 @@ function kanjiBar() {
   const MAX = 300, showAll = isList || ks.length <= MAX;
   const chips = (showAll ? ks : ks.slice(0, MAX)).map(c => isList
     ? `<span class="kchip" title="${esc(kMean(c))}" lang="ja">${esc(c)}<button type="button" data-rmk="${esc(c)}" aria-label="Remove ${esc(c)}">✕</button></span>`
-    : `<a class="kchip" href="#kanji" title="${esc(kMean(c))}" lang="ja">${esc(c)}</a>`).join('');
-  return `<details class="kbar" ${isList || prefs.kbarOpen ? 'open' : ''}><summary>Your ${ks.length.toLocaleString()} kanji <small>${isList ? 'tap ✕ to remove, or add more below' : 'from this source · <a href="#kanji">see them all in My kanji</a>'}</small></summary>
-    <div class="kchips">${chips}</div>${showAll ? '' : `<div class="kmore">…and ${(ks.length - MAX).toLocaleString()} more in <a href="#kanji">My kanji</a>.</div>`}
+    : `<button type="button" class="kchip" data-kq="${esc(c)}" title="${esc(kMean(c))}" lang="ja">${esc(c)}</button>`).join('');
+  return `<details class="kbar" ${isList || prefs.kbarOpen ? 'open' : ''}><summary>Your ${ks.length.toLocaleString()} kanji <small>${isList ? 'tap ✕ to remove, or add more below' : 'from this source · tap one to see its words'}</small></summary>
+    <div class="kchips">${chips}</div><div class="kmore"><button type="button" class="linkbtn" data-kview>Show as cards with word counts</button></div>${showAll ? '' : `<div class="kmore">…and ${(ks.length - MAX).toLocaleString()} more. <button type="button" class="linkbtn" data-kview>Show all as cards</button></div>`}
     ${isList ? '<form class="kadd" id="kadd"><input id="kaddIn" lang="ja" placeholder="Add kanji, or paste any Japanese text" autocomplete="off"><button class="go" type="submit">Add</button></form>' : ''}</details>`;
 }
 function setMine(t) { store.set('mine', t); $('#mine').value = t; $('#mine').dispatchEvent(new Event('input')); }
@@ -816,6 +817,9 @@ $('#list').addEventListener('submit', e => {
 });
 $('#list').addEventListener('toggle', e => { if (e.target.classList?.contains('kbar') && prefs.src !== 'list') { prefs.kbarOpen = e.target.open; savePrefs(); } }, true);
 $('#list').addEventListener('click', e => {
+  const kq = e.target.closest('[data-kq]');
+  if (kq) { $('#q').value = kq.dataset.kq; shown = {}; render(); $('#tools').scrollIntoView({ block: 'start' }); return; }
+  if (e.target.closest('[data-kview]')) { page = 'kanji'; showKanji(); window.scrollTo(0, 0); return; }
   const rm = e.target.closest('[data-rmk]');
   if (rm) { const c = rm.dataset.rmk; setMine([...store.get('mine', '')].filter(x => x !== c).join('')); const y = window.scrollY; showApp(); window.scrollTo(0, y); return; }
   if (e.target.closest('[data-hideall]')) { document.querySelectorAll('.w.shown').forEach(li => li.classList.remove('shown')); return; }
@@ -932,8 +936,9 @@ function go(tab) {
     hideResults(); $('#src').hidden = true; $('#try').hidden = true; $('#intro').hidden = true; showGuides(); window.scrollTo(0, 0); return;
   }
   if (tab === 'kanji') {
-    $('#try').hidden = true; $('#intro').hidden = true;
     if (!SOURCES.includes(prefs.src)) prefs.src = 'jlpt';
+    savePrefs(); history.replaceState(null, '', '#' + prefs.src); setNav(prefs.src);
+    $('#try').hidden = true; $('#intro').hidden = true;
     if (prefs.src === 'wk' && !subj) { if (token) { showSetup('wk'); loadWK(false); } else showSetup('wk'); return; }
     if (prefs.src === 'list' && !kanjiIn(store.get('mine', '')).length) { showSetup('list'); return; }
     showKanji(); return;
@@ -994,8 +999,9 @@ function showKanji() {
   calc = compute();
   const me = $('#me'); me.hidden = false;
   const changeLabel = { wk: 'Token', jlpt: 'Change level', grade: 'Change grade', list: 'Edit my list' }[prefs.src];
-  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="change">' + changeLabel + '</button>';
+  me.innerHTML = calc.summary + '<button type="button" class="hbtn" id="toWords">← Back to words</button><button type="button" class="hbtn" id="change">' + changeLabel + '</button>';
   $('#change').onclick = () => showSetup(prefs.src);
+  $('#toWords').onclick = () => { page = 'words'; showApp(); window.scrollTo(0, 0); };
   const learned = [...calc.learned];
   $('#count').hidden = false;
   $('#count').innerHTML = `<b>${learned.length.toLocaleString()}</b><span>kanji you know</span>`;
@@ -1023,7 +1029,7 @@ $('#page').addEventListener('click', e => {
   const ks = e.target.closest('[data-ks]');
   if (ks) { prefs.ksort = ks.dataset.ks; savePrefs(); showKanji(); return; }
   const k = e.target.closest('.ktile');
-  if (k && page === 'kanji') { $('#q').value = k.dataset.k; shown = {}; location.hash = prefs.src; window.scrollTo(0, 0); return; }
+  if (k && page === 'kanji') { $('#q').value = k.dataset.k; shown = {}; page = 'words'; showApp(); window.scrollTo(0, 0); return; }
   if (k) { window.open('https://jisho.org/search/' + encodeURIComponent(k.dataset.k + ' #kanji'), '_blank', 'noopener'); return; }
   const a = e.target.closest('[data-guide]');
   if (a) {
