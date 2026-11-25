@@ -413,6 +413,17 @@ button.kchip{cursor:pointer}
 .chart{width:100%;height:auto;display:block}
 .lg{display:inline-block;width:18px;height:0;border-top:3px solid var(--c);vertical-align:middle;margin:0 4px 0 10px}.lg.dash{border-top-style:dashed}
 @media(max-width:860px){.bignums{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.scols{grid-template-columns:minmax(0,1fr)}}
+
+/* ---- Watanoc list ---- */
+.wata{margin-top:28px}
+.wata h2{font:600 26px/1.25 "Zen Old Mincho",serif;margin:0 0 6px}
+.wlist{display:grid;gap:6px;margin:8px 0 14px}
+.wrow{display:grid;grid-template-columns:auto minmax(0,1fr) 7rem 3.2rem 5.5rem 1rem;gap:10px;align-items:center;padding:10px 14px;border-radius:12px;background:var(--card);border:1px solid var(--rule);color:var(--ink);text-decoration:none;font-size:15px}
+.wrow:hover{border-color:var(--c)}
+.wt{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wbar{height:6px;border-radius:6px;background:var(--soft);overflow:hidden}.wbar i{display:block;height:100%;background:var(--c)}
+.wp{text-align:right}.wnew{color:var(--mute);font-size:14px;overflow:hidden;white-space:nowrap}.wgo{color:var(--mute)}
+@media(max-width:760px){.wrow{grid-template-columns:auto minmax(0,1fr) 3rem 1rem;grid-template-areas:"lv t p go" "lv bar new new"}.wrow .stlv{grid-area:lv}.wt{grid-area:t}.wbar{grid-area:bar}.wp{grid-area:p}.wnew{grid-area:new;text-align:right}.wgo{grid-area:go}}
 </style>
 </head>
 <body>
@@ -624,6 +635,7 @@ button.kchip{cursor:pointer}
 <script src="words.js"></script>
 <script src="kanji.js"></script>
 <script src="stories.js"></script>
+<script src="watanoc.js" defer></script>
 <script>
 {
 /* ---- Settings: paste your Ko-fi / Buy Me a Coffee / GitHub Sponsors link here to show the support button ---- */
@@ -1247,6 +1259,33 @@ function storyStats(st, known) {
 }
 const segText = segs => segs.map(x => typeof x === 'string' ? x : x[0]).join('');
 const LVCOL = { N5: 'var(--matcha)', N4: 'var(--ai2)', N3: 'var(--fuji)', N2: 'var(--sakura)', N1: 'var(--shu)' };
+
+/* ---------- Read: Watanoc articles (we keep only title, level and kanji counts; the article opens on watanoc.com) ---------- */
+function wataStats(a, known) {
+  let tot = 0, k = 0; const unknown = [];
+  for (const m of a.k.matchAll(/([㐀-鿿々])(\d*)/g)) {
+    const n = +(m[2] || 1); tot += n;
+    if (known.has(m[1])) k += n; else unknown.push(m[1]);
+  }
+  return { pct: tot ? Math.round(k / tot * 100) : 100, unknown };
+}
+function wataSection(kn, min) {
+  const W = window.WATANOC || [];
+  if (!W.length) return '';
+  const lim = prefs.wataMore ? 999 : 24;
+  const list = W.map(a => ({ a, ...wataStats(a, kn.set) })).filter(x => x.pct >= min && x.a.n >= 8)
+    .sort((x, y) => y.pct - x.pct || y.a.n - x.a.n);
+  const title = t => t.replace(/\s*[.…‥]*\s*[（(]\s*n[1-5]\s*[)）]\s*/i, ' · ').replace(/\s*·\s*$/, '').trim();
+  const row = x => `<a class="wrow" href="https://watanoc.com/${encodeURI(x.a.u)}" target="_blank" rel="noopener" style="--c:${LVCOL['N' + x.a.l] || 'var(--mute)'}">
+      <span class="stlv">${x.a.l ? 'N' + x.a.l : '?'}</span><span class="wt" lang="ja">${esc(title(x.a.t))}</span>
+      <span class="wbar"><i style="width:${x.pct}%"></i></span><span class="wp"><b>${x.pct}%</b></span><span class="wnew" lang="ja">${x.unknown.length ? esc(x.unknown.slice(0, 5).join('')) + (x.unknown.length > 5 ? '…' : '') : '✓'}</span><span class="wgo">↗</span></a>`;
+  return `<section class="wata"><h2>More to read: Watanoc articles</h2>
+    <p class="sub">Short articles in easy Japanese from <a href="https://watanoc.com" target="_blank" rel="noopener">Watanoc</a>, a free web magazine for learners. They open on Watanoc's own site, which shows readings and lets you hover for meanings. The percentage is how much of each article's kanji you know; the last column shows kanji that are new to you.</p>
+    <p class="small muted">${list.length} of ${W.length} articles reach ${min}%.</p>
+    <div class="wlist">${list.slice(0, lim).map(row).join('') || '<p class="sub">None yet at this level. Try a lower percentage.</p>'}</div>
+    ${list.length > lim ? `<button type="button" class="hbtn2" id="wataMore">Show all ${list.length}</button>` : ''}</section>`;
+}
+
 function showRead() {
   const pg = $('#page'); pg.hidden = false;
   const kn = readKnown(), min = prefs.readMin ?? 70;
@@ -1263,8 +1302,10 @@ function showRead() {
     <div class="readctl"><label>Show stories where I know at least <select id="readMin">${[0, 50, 60, 70, 80, 90, 100].map(n => `<option value="${n}" ${n === min ? 'selected' : ''}>${n}%</option>`).join('')}</select> of the kanji</label>
     <span class="small muted">${shown.length} of ${all.length} stories</span></div></section>
     <div class="stories">${shown.map(card).join('') || `<p class="sub">No stories reach ${min}% yet. Try a lower number, or learn a few more kanji: the <a href="#guides">Guides</a> tab shows which ones unlock the most.</p>`}</div>
-    <p class="sub small">All stories are original and written for Yomeru. More are coming.</p>`;
+    <p class="sub small">All stories are original and written for Yomeru. More are coming.</p>
+    ${wataSection(kn, min)}`;
   $('#readMin').onchange = e => { prefs.readMin = +e.target.value; savePrefs(); showRead(); };
+  if ($('#wataMore')) $('#wataMore').onclick = () => { prefs.wataMore = true; savePrefs(); const y = window.scrollY; showRead(); window.scrollTo(0, y); };
 }
 function showStory(id) {
   const st = (window.STORIES || []).find(x => x.id === id);
@@ -1392,6 +1433,8 @@ function showLearn() {
         <div class="tfoot"><span class="price">Free</span><a class="go" href="https://ehon.alphapolis.co.jp" target="_blank" rel="noopener">Open ↗</a></div></div></article></div>
     <p class="sub small">Yomeru isn’t affiliated with any of these and isn’t paid to list them. Prices and features change, so check each site.</p>`;
 }
+
+window.addEventListener('load', () => { if (location.hash.slice(1) === 'read') showRead(); });
 
 /* ---------- start ---------- */
 if (!WORDS.length) setStatus('The word list (words.js) didn’t load. Keep it in the same folder as this page.', true);
