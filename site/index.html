@@ -366,6 +366,35 @@ button.kchip{cursor:pointer}
 .newbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 16px;padding:10px 14px;border-radius:12px;background:color-mix(in srgb,var(--matcha) 12%,var(--card));border:1px solid color-mix(in srgb,var(--matcha) 35%,transparent);font-size:15px}
 .newbar button{min-height:36px;padding:4px 12px;border-radius:10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:inherit;cursor:pointer}
 .newbar button[aria-pressed=true]{background:var(--matcha);color:#fff;border-color:var(--matcha)}
+
+/* ---- Read ---- */
+.readhead h2{margin-top:8px}
+.readctl{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;margin:6px 0 20px;font-size:15px}
+.readctl select{min-height:40px;border-radius:10px;border:1px solid var(--rule);background:var(--card);color:var(--ink);font:inherit;padding:0 8px}
+.stories{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:20px}
+.story{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid var(--rule);border-top:5px solid var(--c);border-radius:18px;padding:16px 18px;transition:transform .12s,box-shadow .12s}
+.story:hover{transform:translateY(-3px);box-shadow:0 14px 28px -18px color-mix(in srgb,var(--c) 80%,#000)}
+.sthead{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px;color:var(--mute)}
+.stlv{background:var(--c);color:#fff;font-weight:800;font-size:12px;padding:3px 9px;border-radius:999px}
+.stpct b{color:var(--ink);font-size:16px}
+.story h3{margin:4px 0 0;font:600 26px/1.25 "Zen Old Mincho",serif}
+.sten{margin:0;color:var(--mute);font-size:15px}
+.stbar{height:6px;border-radius:6px;background:var(--soft);overflow:hidden;margin-top:6px}.stbar i{display:block;height:100%;background:var(--c)}
+.stmeta{margin:4px 0 0;font-size:13.5px;color:var(--mute)}
+.reader{max-width:46rem}
+.reader .back{display:inline-block;margin:6px 0 14px;color:var(--ink);font-weight:600}
+.reader h2.jp{font:600 34px/1.4 "Zen Old Mincho",serif;margin:10px 0 2px}
+.stext{margin:8px 0 26px}
+.spara{padding:14px 0;border-bottom:1px dashed var(--rule)}
+.spara .jp{font:500 23px/2.15 "Zen Old Mincho",serif;margin:0;color:var(--ink)}
+.jp rt{font:500 12px/1 "Zen Kaku Gothic New",sans-serif;color:var(--mute)}
+.jp .unk{background:color-mix(in srgb,var(--yama) 22%,transparent);border-radius:4px}
+.entog{all:unset;cursor:pointer;font-size:13.5px;color:var(--mute);text-decoration:underline;text-underline-offset:3px;margin-top:2px}
+.spara .en{margin:6px 0 0;color:var(--mute);font-size:15.5px;line-height:1.55}
+.hbtn2{min-height:40px;padding:4px 14px;border-radius:12px;border:1px solid var(--rule);background:var(--soft);color:var(--ink);font:inherit;font-weight:600;cursor:pointer}
+.newk h3{font:600 20px/1.3 "Zen Old Mincho",serif;margin:0 0 4px}
+.newk .ktile{--c:var(--yama)}
+@media(max-width:760px){.spara .jp{font-size:21px}.reader h2.jp{font-size:28px}}
 </style>
 </head>
 <body>
@@ -388,6 +417,7 @@ button.kchip{cursor:pointer}
     <a href="#grade" data-go="grade">School grade</a>
     <a href="#list" data-go="list">My list</a>
     <span class="navsep" aria-hidden="true"></span>
+    <a href="#read" data-go="read">Read</a>
     <a href="#guides" data-go="guides">Guides</a>
     <a href="#learn" data-go="learn">Study tools</a>
   </nav>
@@ -574,6 +604,7 @@ button.kchip{cursor:pointer}
 
 <script src="words.js"></script>
 <script src="kanji.js"></script>
+<script src="stories.js"></script>
 <script>
 {
 /* ---- Settings: paste your Ko-fi / Buy Me a Coffee / GitHub Sponsors link here to show the support button ---- */
@@ -988,7 +1019,7 @@ drawTry();
 /* ---------- tabs: Home (demo + how-to) and one tab per kanji source ---------- */
 // The demo lives in the header on Home, where the source form or word count go on the other tabs.
 $('#src').parentNode.insertBefore($('#try'), $('#src'));
-const TABS = ['home', 'wk', 'jlpt', 'grade', 'list', 'kanji', 'guides', 'learn'];
+const TABS = ['home', 'wk', 'jlpt', 'grade', 'list', 'kanji', 'guides', 'learn', 'read'];
 const SOURCES = ['wk', 'jlpt', 'grade', 'list'];
 let page = 'words';
 const firstVisit = !localStorage.getItem('yomeru.prefs') && !store.get('token', '') && !store.get('mine', '');
@@ -1005,12 +1036,19 @@ function showSetup(src) {
   $('#src').hidden = false; pickTab(src);
 }
 function go(tab) {
+  let storyId = null;
+  if (tab.startsWith('read/')) { storyId = tab.slice(5); tab = 'read'; }
   if (!TABS.includes(tab)) tab = 'home';
   demo = false; setNav(tab); $('#page').hidden = true;
   page = tab === 'kanji' ? 'kanji' : 'words';
   if (tab === 'home') {
     hideResults(); $('#src').hidden = true; $('#try').hidden = false; $('#intro').hidden = false; setStatus(''); drawTry();
     return;
+  }
+  if (tab === 'read') {
+    hideResults(); $('#src').hidden = true; $('#try').hidden = true; $('#intro').hidden = true;
+    if (storyId) showStory(storyId); else showRead();
+    window.scrollTo(0, 0); return;
   }
   if (tab === 'learn') {
     hideResults(); $('#src').hidden = true; $('#try').hidden = true; $('#intro').hidden = true; showLearn(); window.scrollTo(0, 0); return;
@@ -1159,6 +1197,72 @@ function showGuides() {
       <div class="acts2"><button type="button" class="go" data-guide="save" data-list='${JSON.stringify(TOP50.map(x => x.c))}'>Use these 50 as My list</button><button type="button" class="hbtn2" data-guide="try" data-list='${JSON.stringify(TOP50.slice(0, 10).map(x => x.c))}'>Try the first 10 in the demo</button></div></section>`;
 }
 
+
+
+/* ---------- Read: original graded stories, sorted by how many of their kanji you know ---------- */
+function readKnown() {
+  // the kanji set from the current source; falls back to JLPT N5 so the page always works
+  const ready = SOURCES.includes(prefs.src) && (prefs.src !== 'wk' || subj) && (prefs.src !== 'list' || kanjiIn(store.get('mine', '')).length);
+  if (ready) { const src = source(); return { set: src.learned, label: src.summary.replace(/<span class="seal">.*?<\/span>/, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim(), fallback: false }; }
+  const set = new Set(Object.keys(KJ).filter(c => KJ[c][1] && +KJ[c][1] >= 5));
+  return { set, label: 'JLPT N5', fallback: true };
+}
+function storyStats(st, known) {
+  const ks = [...st.kanji], k = ks.filter(c => known.has(c)).length;
+  const unknown = [...new Set(ks.filter(c => !known.has(c)))];
+  return { pct: ks.length ? Math.round(k / ks.length * 100) : 100, unknown };
+}
+const segText = segs => segs.map(x => typeof x === 'string' ? x : x[0]).join('');
+const LVCOL = { N5: 'var(--matcha)', N4: 'var(--ai2)', N3: 'var(--fuji)', N2: 'var(--sakura)', N1: 'var(--shu)' };
+function showRead() {
+  const pg = $('#page'); pg.hidden = false;
+  const kn = readKnown(), min = prefs.readMin ?? 70;
+  const all = (window.STORIES || []).map(st => ({ st, ...storyStats(st, kn.set) }));
+  const shown = all.filter(x => x.pct >= min).sort((a, b) => b.pct - a.pct || a.st.level.localeCompare(b.st.level) * -1);
+  const card = x => `<a class="story" href="#read/${x.st.id}" style="--c:${LVCOL[x.st.level]}">
+      <div class="sthead"><span class="stlv">${x.st.level}</span><span class="stpct"><b>${x.pct}%</b> kanji you know</span></div>
+      <h3 lang="ja">${esc(segText(x.st.title))}</h3><p class="sten">${esc(x.st.en)}</p>
+      <div class="stbar"><i style="width:${x.pct}%"></i></div>
+      <p class="stmeta">${x.unknown.length ? `${x.unknown.length} new kanji: <span lang="ja">${esc(x.unknown.slice(0, 8).join(' '))}${x.unknown.length > 8 ? ' …' : ''}</span>` : 'You know every kanji in it!'} · about ${Math.max(1, Math.round(x.st.chars / 120))} min</p></a>`;
+  pg.innerHTML = `<section class="readhead"><h2>Stories you can read</h2>
+    <p class="sub">Short original stories, written for Yomeru, from beginner (N5) up to N2. Each story’s level comes from the kanji it uses. Readings appear only above kanji you don't know yet.
+    ${kn.fallback ? `Showing results for <b>JLPT N5</b> because no kanji source is set up yet. Pick one in the tabs above to see your own numbers.` : `Using your kanji from <b>${esc(kn.label)}</b>.`}</p>
+    <div class="readctl"><label>Show stories where I know at least <select id="readMin">${[0, 50, 60, 70, 80, 90, 100].map(n => `<option value="${n}" ${n === min ? 'selected' : ''}>${n}%</option>`).join('')}</select> of the kanji</label>
+    <span class="small muted">${shown.length} of ${all.length} stories</span></div></section>
+    <div class="stories">${shown.map(card).join('') || `<p class="sub">No stories reach ${min}% yet. Try a lower number, or learn a few more kanji: the <a href="#guides">Guides</a> tab shows which ones unlock the most.</p>`}</div>
+    <p class="sub small">All stories are original and written for Yomeru. More are coming.</p>`;
+  $('#readMin').onchange = e => { prefs.readMin = +e.target.value; savePrefs(); showRead(); };
+}
+function showStory(id) {
+  const st = (window.STORIES || []).find(x => x.id === id);
+  if (!st) { showRead(); return; }
+  const pg = $('#page'); pg.hidden = false;
+  const kn = readKnown(), { pct, unknown } = storyStats(st, kn.set), mode = prefs.furi || 'unknown';
+  const seg = x => {
+    if (typeof x === 'string') return esc(x);
+    const [base, rd] = x, unk = [...base].some(c => /[㐀-鿿]/.test(c) && !kn.set.has(c));
+    const show = mode === 'all' || (mode === 'unknown' && unk);
+    const cls = unk ? ' class="unk"' : '';
+    return show ? `<ruby${cls}>${esc(base)}<rt>${esc(rd)}</rt></ruby>` : `<span${cls}>${esc(base)}</span>`;
+  };
+  const para = (p, i) => `<div class="spara"><p lang="ja" class="jp">${p.jp.map(seg).join('')}</p>
+    <button type="button" class="entog" data-en="${i}" aria-expanded="false">Show English</button><p class="en" id="en${i}" hidden>${esc(p.en)}</p></div>`;
+  pg.innerHTML = `<article class="reader" style="--c:${LVCOL[st.level]}">
+    <a class="back" href="#read">‹ All stories</a>
+    <div class="sthead"><span class="stlv">${st.level}</span><span class="stpct"><b>${pct}%</b> of the kanji you know</span></div>
+    <h2 lang="ja" class="jp">${st.title.map(seg).join('')}</h2><p class="sten">${esc(st.en)}</p>
+    <div class="readctl"><span>Readings:</span><div class="seg" role="group" aria-label="Readings">
+      <button type="button" data-furi="unknown" aria-pressed="${mode === 'unknown'}">New kanji</button><button type="button" data-furi="all" aria-pressed="${mode === 'all'}">All</button><button type="button" data-furi="none" aria-pressed="${mode === 'none'}">None</button></div>
+      <button type="button" class="hbtn2" id="allEn">Show all English</button></div>
+    <div class="stext">${st.paras.map(para).join('')}</div>
+    ${unknown.length ? `<section class="newk"><h3>New kanji in this story</h3><div class="kgrid">${unknown.map(c => tile(c, '', '')).join('')}</div>
+      ${prefs.src === 'list' && !kn.fallback ? `<button type="button" class="go" id="addUnknown">Add these to My list</button>` : ''}</section>` : `<p class="sub">You know every kanji in this story. よくできました!</p>`}
+  </article>`;
+  pg.querySelectorAll('[data-furi]').forEach(b => b.onclick = () => { prefs.furi = b.dataset.furi; savePrefs(); showStory(id); });
+  pg.querySelectorAll('[data-en]').forEach(b => b.onclick = () => { const e = $('#en' + b.dataset.en), open = e.hidden; e.hidden = !open; b.textContent = open ? 'Hide English' : 'Show English'; b.setAttribute('aria-expanded', open); });
+  $('#allEn').onclick = () => { const anyHidden = [...pg.querySelectorAll('.en')].some(e => e.hidden); pg.querySelectorAll('.en').forEach(e => e.hidden = !anyHidden); pg.querySelectorAll('[data-en]').forEach(b => { b.textContent = anyHidden ? 'Hide English' : 'Show English'; b.setAttribute('aria-expanded', anyHidden); }); $('#allEn').textContent = anyHidden ? 'Hide all English' : 'Show all English'; };
+  if ($('#addUnknown')) $('#addUnknown').onclick = () => { setMine(store.get('mine', '') + unknown.join('')); showStory(id); };
+}
 
 /* ---------- Study tools ---------- */
 function showLearn() {
