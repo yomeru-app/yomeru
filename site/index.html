@@ -395,6 +395,24 @@ button.kchip{cursor:pointer}
 .newk h3{font:600 20px/1.3 "Zen Old Mincho",serif;margin:0 0 4px}
 .newk .ktile{--c:var(--yama)}
 @media(max-width:760px){.spara .jp{font-size:21px}.reader h2.jp{font-size:28px}}
+
+/* ---- Stats ---- */
+.statshead h2{margin-top:8px}
+.bignums{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:4px 0 18px}
+.bignums>div{background:var(--card);border:1px solid var(--rule);border-left:6px solid var(--c);border-radius:16px;padding:14px 16px;display:grid;gap:4px}
+.bignums b{font:600 40px/1 "Zen Old Mincho",serif;color:var(--c)}
+.bignums span{color:var(--mute);font-size:14.5px;line-height:1.35}
+.bignums small{font-size:12.5px}
+.scard{background:var(--card);border:1px solid var(--rule);border-radius:18px;padding:16px 18px;margin:0 0 16px}
+.scard h3{margin:0 0 2px;font:600 21px/1.3 "Zen Old Mincho",serif}
+.scols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.sbar{display:grid;grid-template-columns:5.5em minmax(0,1fr) 5.2em 3em;gap:10px;align-items:center;font-size:14.5px;margin:8px 0}
+.sbt{height:12px;background:var(--soft);border-radius:8px;overflow:hidden}.sbt i{display:block;height:100%;border-radius:8px}
+.sbn{text-align:right;color:var(--mute)}.sbn b{color:var(--ink)}
+.sbp{text-align:right;font-weight:700}
+.chart{width:100%;height:auto;display:block}
+.lg{display:inline-block;width:18px;height:0;border-top:3px solid var(--c);vertical-align:middle;margin:0 4px 0 10px}.lg.dash{border-top-style:dashed}
+@media(max-width:860px){.bignums{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.scols{grid-template-columns:minmax(0,1fr)}}
 </style>
 </head>
 <body>
@@ -418,6 +436,7 @@ button.kchip{cursor:pointer}
     <a href="#list" data-go="list">My list</a>
     <span class="navsep" aria-hidden="true"></span>
     <a href="#read" data-go="read">Read</a>
+    <a href="#stats" data-go="stats">Stats</a>
     <a href="#guides" data-go="guides">Guides</a>
     <a href="#learn" data-go="learn">Study tools</a>
   </nav>
@@ -809,9 +828,18 @@ let newSet = new Set(), onlyNew = false;
 const b64 = u => { let s = ''; for (let i = 0; i < u.length; i += 8192) s += String.fromCharCode.apply(null, u.subarray(i, i + 8192)); return btoa(s); };
 const unb64 = t => Uint8Array.from(atob(t), c => c.charCodeAt(0));
 function bitsOf(list) { const u = new Uint8Array(Math.ceil(WORDS.length / 8)); for (const w of list) u[w.i >> 3] |= 1 << (w.i & 7); return u; }
+function recordHistory(learned, out) {
+  const key = 'hist.' + prefs.src, d = new Date().toISOString().slice(0, 10);
+  let h = store.get(key, []); if (!Array.isArray(h)) h = [];
+  const pt = { d, k: learned.size, w: out.filter(everyday).length };
+  if (h.length && h[h.length - 1].d === d) h[h.length - 1] = pt; else h.push(pt);
+  h = h.slice(-400); store.set(key, h);
+  return h;
+}
 function updateNew() {
   newSet = new Set();
   if (demo || !calc) { onlyNew = false; return; }
+  recordHistory(calc.learned, calc.out);
   const key = 'seen.' + prefs.src, cur = bitsOf(calc.out), curT = b64(cur);
   let st = null; try { st = JSON.parse(store.get(key, 'null')); } catch {}
   if (!st || st.n !== WORDS.length) { store.set(key, JSON.stringify({ n: WORDS.length, prev: curT, cur: curT, at: Date.now() })); return; }
@@ -1019,7 +1047,7 @@ drawTry();
 /* ---------- tabs: Home (demo + how-to) and one tab per kanji source ---------- */
 // The demo lives in the header on Home, where the source form or word count go on the other tabs.
 $('#src').parentNode.insertBefore($('#try'), $('#src'));
-const TABS = ['home', 'wk', 'jlpt', 'grade', 'list', 'kanji', 'guides', 'learn', 'read'];
+const TABS = ['home', 'wk', 'jlpt', 'grade', 'list', 'kanji', 'guides', 'learn', 'read', 'stats'];
 const SOURCES = ['wk', 'jlpt', 'grade', 'list'];
 let page = 'words';
 const firstVisit = !localStorage.getItem('yomeru.prefs') && !store.get('token', '') && !store.get('mine', '');
@@ -1044,6 +1072,11 @@ function go(tab) {
   if (tab === 'home') {
     hideResults(); $('#src').hidden = true; $('#try').hidden = false; $('#intro').hidden = false; setStatus(''); drawTry();
     return;
+  }
+  if (tab === 'stats') {
+    hideResults(); $('#src').hidden = true; $('#try').hidden = true; $('#intro').hidden = true;
+    if (prefs.src === 'wk' && !subj && token) { $('#page').hidden = false; $('#page').innerHTML = '<p class="sub">Loading your WaniKani kanji…</p>'; loadWK(false).then(() => { if (location.hash === '#stats') { hideResults(); showStats(); } }); return; }
+    showStats(); window.scrollTo(0, 0); return;
   }
   if (tab === 'read') {
     hideResults(); $('#src').hidden = true; $('#try').hidden = true; $('#intro').hidden = true;
@@ -1262,6 +1295,64 @@ function showStory(id) {
   pg.querySelectorAll('[data-en]').forEach(b => b.onclick = () => { const e = $('#en' + b.dataset.en), open = e.hidden; e.hidden = !open; b.textContent = open ? 'Hide English' : 'Show English'; b.setAttribute('aria-expanded', open); });
   $('#allEn').onclick = () => { const anyHidden = [...pg.querySelectorAll('.en')].some(e => e.hidden); pg.querySelectorAll('.en').forEach(e => e.hidden = !anyHidden); pg.querySelectorAll('[data-en]').forEach(b => { b.textContent = anyHidden ? 'Hide English' : 'Show English'; b.setAttribute('aria-expanded', anyHidden); }); $('#allEn').textContent = anyHidden ? 'Hide all English' : 'Show all English'; };
   if ($('#addUnknown')) $('#addUnknown').onclick = () => { setMine(store.get('mine', '') + unknown.join('')); showStory(id); };
+}
+
+
+/* ---------- Stats: how far your kanji go ---------- */
+function statBar(label, have, total, col) {
+  const pct = total ? Math.round(have / total * 100) : 0;
+  return `<div class="sbar"><span class="sbl">${label}</span><span class="sbt"><i style="width:${pct}%;background:${col}"></i></span><span class="sbn"><b>${have}</b>/${total}</span><span class="sbp">${pct}%</span></div>`;
+}
+function lineChart(h, width) {
+  if (h.length < 2) return `<p class="sub">Your progress chart starts today. Come back after you learn more kanji and you'll see a line here, one point per day.</p>`;
+  const W = Math.max(300, Math.min(720, width || 640)), H = 190, P = 26, maxW = Math.max(...h.map(x => x.w), 1), maxK = Math.max(...h.map(x => x.k), 1);
+  const X = i => P + i * (W - 2 * P) / (h.length - 1), Yw = v => H - P - v / maxW * (H - 2 * P), Yk = v => H - P - v / maxK * (H - 2 * P);
+  const path = (Y, key) => h.map((x, i) => (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(x[key]).toFixed(1)).join(' ');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Kanji and words over time">
+    <line x1="${P}" y1="${H - P}" x2="${W - P}" y2="${H - P}" stroke="var(--rule)"/>
+    <path d="${path(Yw, 'w')}" fill="none" stroke="var(--matcha)" stroke-width="3" stroke-linejoin="round"/>
+    <path d="${path(Yk, 'k')}" fill="none" stroke="var(--shu)" stroke-width="3" stroke-dasharray="6 5" stroke-linejoin="round"/>
+    <text x="${P}" y="${H - 8}" font-size="12" fill="var(--mute)">${h[0].d}</text><text x="${W - P}" y="${H - 8}" font-size="12" fill="var(--mute)" text-anchor="end">${h[h.length - 1].d}</text>
+</svg>`;
+}
+function showStats() {
+  const pg = $('#page'); pg.hidden = false;
+  const ready = SOURCES.includes(prefs.src) && (prefs.src !== 'wk' || subj) && (prefs.src !== 'list' || kanjiIn(store.get('mine', '')).length);
+  if (!ready) {
+    pg.innerHTML = `<section class="statshead"><h2>Your stats</h2><p class="sub">Pick where your kanji come from first: <a href="#wk">WaniKani</a>, <a href="#jlpt">JLPT</a>, <a href="#grade">school grade</a> or <a href="#list">my list</a>. Then come back here.</p></section>`;
+    return;
+  }
+  const src = source(), L = src.learned;
+  calc = compute();
+  const label = src.summary.replace(/<span class="seal">.*?<\/span>/, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+  const allEveryday = WORDS.filter(everyday).length, myWords = calc.out.filter(everyday).length;
+  const h = recordHistory(L, calc.out);
+  const readable = (window.STORIES || []).filter(st => storyStats(st, L).pct >= 70).length;
+  // JLPT and school-grade coverage
+  const byJ = {}, byG = {};
+  for (const [c, v] of Object.entries(KJ)) {
+    if (v[1]) { (byJ[v[1]] ||= [0, 0])[1]++; if (L.has(c)) byJ[v[1]][0]++; }
+    if (v[2]) { (byG[v[2]] ||= [0, 0])[1]++; if (L.has(c)) byG[v[2]][0]++; }
+  }
+  const other = [...L].filter(c => !KJ[c] || (!KJ[c][1] && !KJ[c][2])).length;
+  const jcol = { 5: 'var(--matcha)', 4: 'var(--ai2)', 3: 'var(--fuji)', 2: 'var(--sakura)', 1: 'var(--shu)' };
+  const gcol = n => n === 8 ? 'var(--yama)' : 'var(--ai2)';
+  const joyo = Object.entries(byG).reduce((a, [, v]) => [a[0] + v[0], a[1] + v[1]], [0, 0]);
+  pg.innerHTML = `<section class="statshead"><h2>Your stats</h2><p class="sub">Using your kanji from <b>${esc(label)}</b>.</p></section>
+    <div class="bignums">
+      <div style="--c:var(--shu)"><b>${L.size.toLocaleString()}</b><span>kanji you know</span></div>
+      <div style="--c:var(--matcha)"><b>${myWords.toLocaleString()}</b><span>everyday words you can read<br><small>${Math.round(myWords / allEveryday * 100)}% of ${allEveryday.toLocaleString()}</small></span></div>
+      <div style="--c:var(--ai2)"><b>${Math.round(joyo[0] / joyo[1] * 100)}%</b><span>of the ${joyo[1].toLocaleString()} Jōyō kanji<br><small>the official everyday set</small></span></div>
+      <div style="--c:var(--fuji)"><b>${readable}</b><span>stories you can read<br><small><a href="#read">open the Read tab</a></small></span></div>
+    </div>
+    <section class="scard"><h3>Progress over time</h3><p class="sub small"><span class="lg" style="--c:var(--matcha)"></span> <b>${myWords.toLocaleString()}</b> everyday words you can read <span class="lg dash" style="--c:var(--shu)"></span> <b>${L.size}</b> kanji you know</p>${lineChart(h, pg.clientWidth - 40)}</section>
+    <div class="scols">
+      <section class="scard"><h3>JLPT levels</h3><p class="sub small">How many of each level's kanji you know.</p>
+        ${[5, 4, 3, 2, 1].map(n => statBar('N' + n, ...(byJ[n] || [0, 0]), jcol[n])).join('')}</section>
+      <section class="scard"><h3>Japanese school grades</h3><p class="sub small">The Jōyō kanji, in the order Japanese children learn them.</p>
+        ${[1, 2, 3, 4, 5, 6, 8].map(n => statBar(n === 8 ? 'Secondary' : 'Grade ' + n, ...(byG[n] || [0, 0]), gcol(n))).join('')}</section>
+    </div>
+    ${other ? `<p class="sub small">${other} of your kanji aren't in the JLPT or Jōyō lists (rarer kanji).</p>` : ''}`;
 }
 
 /* ---------- Study tools ---------- */
